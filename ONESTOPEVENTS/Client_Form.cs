@@ -127,6 +127,23 @@ namespace Clients_form
 
             try
             {
+                int eventCount = Convert.ToInt32(Database.Scalar(@"
+                    SELECT COUNT(*) FROM EVENTS WHERE Client_ID = @ClientId;",
+                    parameters => Database.AddInt(parameters, "@ClientId", clientId)));
+                if (eventCount > 0)
+                {
+                    MessageBox.Show("This client cannot be deleted because existing events reference it.",
+                        "Deletion blocked", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (MessageBox.Show("Delete the selected client?", "Confirm deletion",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                {
+                    return;
+                }
+
                 Database.Execute("DELETE FROM CLIENTS WHERE Client_ID = @ClientId;",
                     parameters => Database.AddInt(parameters, "@ClientId", clientId));
                 RefreshClientChoices();

@@ -129,6 +129,23 @@ namespace ONESTOPEVENTS
 
             try
             {
+                int eventCount = Convert.ToInt32(Database.Scalar(@"
+                    SELECT COUNT(*) FROM EVENTS WHERE Venue_ID = @VenueId;",
+                    parameters => Database.AddInt(parameters, "@VenueId", venueId)));
+                if (eventCount > 0)
+                {
+                    MessageBox.Show("This venue cannot be deleted because existing events reference it.",
+                        "Deletion blocked", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (MessageBox.Show("Delete the selected venue?", "Confirm deletion",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                {
+                    return;
+                }
+
                 Database.Execute("DELETE FROM VENUES WHERE Venue_ID = @VenueId;",
                     parameters => Database.AddInt(parameters, "@VenueId", venueId));
                 RefreshVenueChoices();

@@ -540,7 +540,7 @@
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(288, 23);
             this.label8.TabIndex = 31;
-            this.label8.Text = "Select partner ID you wish to delete:";
+            this.label8.Text = "Select venue you wish to delete:";
             // 
             // cbxDeleteVenue
             // 

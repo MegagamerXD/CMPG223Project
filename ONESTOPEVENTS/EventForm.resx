@@ -780,7 +780,7 @@
     <value>19</value>
   </data>
   <data name="btnUpdateEvent.Text" xml:space="preserve">
-    <value>Modify</value>
+    <value>UPDATE</value>
   </data>
   <data name="&gt;&gt;btnUpdateEvent.Name" xml:space="preserve">
     <value>btnUpdateEvent</value>
@@ -1367,7 +1367,7 @@
     <value>10</value>
   </data>
   <data name="btnBookEvent.Text" xml:space="preserve">
-    <value>Book</value>
+    <value>BOOK</value>
   </data>
   <data name="&gt;&gt;btnBookEvent.Name" xml:space="preserve">
     <value>btnBookEvent</value>
@@ -2101,7 +2101,7 @@
     <value>1</value>
   </data>
   <data name="label7.Text" xml:space="preserve">
-    <value>Select event to be cancelled:</value>
+    <value>Select event to delete:</value>
   </data>
   <data name="&gt;&gt;label7.Name" xml:space="preserve">
     <value>label7</value>

@@ -137,7 +137,7 @@
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(288, 23);
             this.label8.TabIndex = 31;
-            this.label8.Text = "Select Partner ID you wish to delete:";
+            this.label8.Text = "Select partner you wish to delete:";
             // 
             // cbxPSelectDelete
             // 
@@ -214,7 +214,7 @@
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(295, 23);
             this.label14.TabIndex = 27;
-            this.label14.Text = "Select Partner ID you wish to update:";
+            this.label14.Text = "Select partner you wish to update:";
             // 
             // lblPContactNumberUpdate
             // 
@@ -642,7 +642,7 @@
             this.MaximizeBox = false;
             this.Name = "Partner_Form";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ADD_Partner_Form";
+            this.Text = "Partners";
             this.Load += new System.EventHandler(this.Partner_Form_Load);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);

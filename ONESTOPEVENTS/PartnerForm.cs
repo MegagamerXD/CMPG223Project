@@ -133,6 +133,23 @@ namespace ONESTOPEVENTS
 
             try
             {
+                int eventCount = Convert.ToInt32(Database.Scalar(@"
+                    SELECT COUNT(*) FROM EVENTS WHERE Partner_ID = @PartnerId;",
+                    parameters => Database.AddInt(parameters, "@PartnerId", partnerId)));
+                if (eventCount > 0)
+                {
+                    MessageBox.Show("This partner cannot be deleted because existing events reference it.",
+                        "Deletion blocked", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (MessageBox.Show("Delete the selected partner?", "Confirm deletion",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                {
+                    return;
+                }
+
                 Database.Execute("DELETE FROM PARTNERS WHERE Partner_ID = @PartnerId;",
                     parameters => Database.AddInt(parameters, "@PartnerId", partnerId));
                 RefreshPartnerChoices();

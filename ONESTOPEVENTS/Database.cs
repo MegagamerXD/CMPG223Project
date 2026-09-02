@@ -52,6 +52,20 @@ namespace ONESTOPEVENTS
             }
         }
 
+        internal static int ExecuteStoredProcedure(
+            string procedureName,
+            Action<SqlParameterCollection> configureParameters = null)
+        {
+            using (SqlConnection connection = CreateConnection())
+            using (SqlCommand command = new SqlCommand(procedureName, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                configureParameters?.Invoke(command.Parameters);
+                connection.Open();
+                return command.ExecuteNonQuery();
+            }
+        }
+
         internal static object Scalar(
             string commandText,
             Action<SqlParameterCollection> configureParameters = null)

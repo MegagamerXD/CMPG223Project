@@ -22,6 +22,8 @@ namespace ONESTOPEVENTS
 
         private void PartnerProfessionForm_Load(object sender, EventArgs e)
         {
+            Controls.Remove(tabControl1);
+            tabControl1.Dispose();
             SetUpdateFieldsVisible(false);
             RefreshProfessionChoices();
         }
@@ -112,6 +114,25 @@ namespace ONESTOPEVENTS
 
             try
             {
+                int partnerCount = Convert.ToInt32(Database.Scalar(@"
+                    SELECT COUNT(*)
+                    FROM PARTNERS
+                    WHERE Profession_ID = @ProfessionId;",
+                    parameters => Database.AddInt(parameters, "@ProfessionId", professionId)));
+                if (partnerCount > 0)
+                {
+                    MessageBox.Show("This profession cannot be deleted because existing partners reference it.",
+                        "Deletion blocked", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (MessageBox.Show("Delete the selected profession?", "Confirm deletion",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                {
+                    return;
+                }
+
                 Database.Execute(@"
                     DELETE FROM PARTNER_PROFESSIONS
                     WHERE Profession_ID = @ProfessionId;",

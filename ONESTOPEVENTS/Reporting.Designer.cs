@@ -78,7 +78,7 @@
             this.radioButton4.Size = new System.Drawing.Size(107, 21);
             this.radioButton4.TabIndex = 4;
             this.radioButton4.TabStop = true;
-            this.radioButton4.Text = "Top ten clients";
+            this.radioButton4.Text = "Highest-spending clients";
             this.radioButton4.UseVisualStyleBackColor = true;
             this.radioButton4.CheckedChanged += new System.EventHandler(this.radioButton4_CheckedChanged);
             // 
@@ -92,7 +92,7 @@
             this.radioButton3.Size = new System.Drawing.Size(141, 21);
             this.radioButton3.TabIndex = 3;
             this.radioButton3.TabStop = true;
-            this.radioButton3.Text = "Most popular events";
+            this.radioButton3.Text = "Highest-value events";
             this.radioButton3.UseVisualStyleBackColor = true;
             this.radioButton3.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
             // 
@@ -120,7 +120,7 @@
             this.radioButton1.Size = new System.Drawing.Size(157, 21);
             this.radioButton1.TabIndex = 1;
             this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Highest earners (1 - 10)";
+            this.radioButton1.Text = "Highest-value partners";
             this.radioButton1.UseVisualStyleBackColor = true;
             this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
             // 

@@ -124,6 +124,98 @@ BEGIN
 END;
 GO
 
+CREATE OR ALTER PROCEDURE dbo.usp_Event_Create
+    @EventName VARCHAR(50),
+    @VenueId INT,
+    @ClientId INT,
+    @PartnerId INT,
+    @EventDate DATE,
+    @Description VARCHAR(255),
+    @EventCost MONEY
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    IF EXISTS
+    (
+        SELECT 1 FROM dbo.EVENTS
+        WHERE Venue_ID = @VenueId AND Event_Date = @EventDate
+    )
+        THROW 50001, 'The selected venue is already booked on this date.', 1;
+
+    IF EXISTS
+    (
+        SELECT 1 FROM dbo.EVENTS
+        WHERE Partner_ID = @PartnerId AND Event_Date = @EventDate
+    )
+        THROW 50002, 'The selected partner is already booked on this date.', 1;
+
+    INSERT dbo.EVENTS
+        (Event_Name, Venue_ID, Client_ID, Partner_ID,
+         Event_Date, Event_Description, Event_Cost)
+    VALUES
+        (@EventName, @VenueId, @ClientId, @PartnerId,
+         @EventDate, @Description, @EventCost);
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.usp_Event_Update
+    @EventId INT,
+    @EventName VARCHAR(50),
+    @VenueId INT,
+    @ClientId INT,
+    @PartnerId INT,
+    @EventDate DATE,
+    @Description VARCHAR(255),
+    @EventCost MONEY
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    IF EXISTS
+    (
+        SELECT 1 FROM dbo.EVENTS
+        WHERE Venue_ID = @VenueId
+          AND Event_Date = @EventDate
+          AND Event_ID <> @EventId
+    )
+        THROW 50001, 'The selected venue is already booked on this date.', 1;
+
+    IF EXISTS
+    (
+        SELECT 1 FROM dbo.EVENTS
+        WHERE Partner_ID = @PartnerId
+          AND Event_Date = @EventDate
+          AND Event_ID <> @EventId
+    )
+        THROW 50002, 'The selected partner is already booked on this date.', 1;
+
+    UPDATE dbo.EVENTS
+    SET Event_Name = @EventName,
+        Venue_ID = @VenueId,
+        Client_ID = @ClientId,
+        Partner_ID = @PartnerId,
+        Event_Date = @EventDate,
+        Event_Description = @Description,
+        Event_Cost = @EventCost
+    WHERE Event_ID = @EventId;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.usp_Event_Delete
+    @EventId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DELETE dbo.EVENTS
+    WHERE Event_ID = @EventId;
+END;
+GO
+
 IF NOT EXISTS (SELECT 1 FROM dbo.CLIENTS)
 BEGIN
     INSERT dbo.CLIENTS

@@ -107,6 +107,11 @@ namespace Events_Form
                 return;
             }
 
+            if (!BookingIsAvailable(venueId, partnerId, eventDate, 0))
+            {
+                return;
+            }
+
             decimal eventCost;
             if (!TryCalculateEventCost(venueId, partnerId, out eventCost))
             {
@@ -118,13 +123,7 @@ namespace Events_Form
 
             try
             {
-                Database.Execute(@"
-                    INSERT INTO EVENTS
-                        (Event_Name, Venue_ID, Client_ID, Partner_ID,
-                         Event_Date, Event_Description, Event_Cost)
-                    VALUES
-                        (@EventName, @VenueId, @ClientId, @PartnerId,
-                         @EventDate, @Description, @EventCost);",
+                Database.ExecuteStoredProcedure("dbo.usp_Event_Create",
                     parameters =>
                     {
                         AddEventParameters(parameters, eventName, description, eventDate,
@@ -165,6 +164,11 @@ namespace Events_Form
                 return;
             }
 
+            if (!BookingIsAvailable(venueId, partnerId, eventDate, eventId))
+            {
+                return;
+            }
+
             decimal eventCost;
             if (!TryCalculateEventCost(venueId, partnerId, out eventCost))
             {
@@ -176,16 +180,7 @@ namespace Events_Form
 
             try
             {
-                Database.Execute(@"
-                    UPDATE EVENTS
-                    SET Event_Name = @EventName,
-                        Venue_ID = @VenueId,
-                        Client_ID = @ClientId,
-                        Partner_ID = @PartnerId,
-                        Event_Date = @EventDate,
-                        Event_Description = @Description,
-                        Event_Cost = @EventCost
-                    WHERE Event_ID = @EventId;",
+                Database.ExecuteStoredProcedure("dbo.usp_Event_Update",
                     parameters =>
                     {
                         AddEventParameters(parameters, eventName, description, eventDate,
@@ -213,9 +208,16 @@ namespace Events_Form
                 return;
             }
 
+            if (MessageBox.Show("Delete the selected event?", "Confirm deletion",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            {
+                return;
+            }
+
             try
             {
-                Database.Execute("DELETE FROM EVENTS WHERE Event_ID = @EventId;",
+                Database.ExecuteStoredProcedure("dbo.usp_Event_Delete",
                     parameters => Database.AddInt(parameters, "@EventId", eventId));
                 RefreshEventChoices();
                 btnDelete.Visible = false;
@@ -261,6 +263,60 @@ namespace Events_Form
             catch (SqlException ex)
             {
                 ShowDatabaseError("calculate the event cost", ex);
+                return false;
+            }
+        }
+
+        private bool BookingIsAvailable(
+            int venueId,
+            int partnerId,
+            DateTime eventDate,
+            int excludedEventId)
+        {
+            try
+            {
+                object result = Database.Scalar(@"
+                    SELECT CASE
+                        WHEN EXISTS
+                        (
+                            SELECT 1
+                            FROM EVENTS
+                            WHERE Venue_ID = @VenueId
+                              AND Event_Date = @EventDate
+                              AND Event_ID <> @ExcludedEventId
+                        ) THEN 'Venue'
+                        WHEN EXISTS
+                        (
+                            SELECT 1
+                            FROM EVENTS
+                            WHERE Partner_ID = @PartnerId
+                              AND Event_Date = @EventDate
+                              AND Event_ID <> @ExcludedEventId
+                        ) THEN 'Partner'
+                        ELSE NULL
+                    END;",
+                    parameters =>
+                    {
+                        Database.AddInt(parameters, "@VenueId", venueId);
+                        Database.AddInt(parameters, "@PartnerId", partnerId);
+                        Database.AddDate(parameters, "@EventDate", eventDate);
+                        Database.AddInt(parameters, "@ExcludedEventId", excludedEventId);
+                    });
+
+                if (result == null || result == DBNull.Value)
+                {
+                    return true;
+                }
+
+                string resource = Convert.ToString(result);
+                MessageBox.Show("The selected " + resource.ToLowerInvariant()
+                    + " is already booked on that date.", "Booking conflict",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+            catch (SqlException ex)
+            {
+                ShowDatabaseError("check booking availability", ex);
                 return false;
             }
         }

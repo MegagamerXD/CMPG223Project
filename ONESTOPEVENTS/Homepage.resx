@@ -118,6 +118,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="label1.Text" xml:space="preserve">
-    <value>Using One Stop Event’s system will enable you to add, update and delete clients. You’ll also be able to book, modify and cancel events. You can also add, update and remover partners with their respective professions. Additionally you can add, modify and remove venues.</value>
+    <value>The One Stop Events system lets you maintain clients, partners, professions and venues; book and update events; and generate date-filtered reports.</value>
   </data>
 </root>
