@@ -1,0 +1,24 @@
+# Visual Studio
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Test and analysis output
+TestResults/
+*.coverage
+*.coveragexml
+
+# Local tooling and document-render output
+.idea/
+.vscode/
+artifacts/
+rendered-docx/
+
+# Operating-system files
+Thumbs.db
+Desktop.ini
+.DS_Store
