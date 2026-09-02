@@ -85,6 +85,35 @@ namespace ONESTOPEVENTS
             return int.TryParse(value, out number) && number > 0;
         }
 
+        internal static bool TryReadOptionalRating(string value, out decimal? rating)
+        {
+            rating = null;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return true;
+            }
+
+            decimal parsed;
+            bool validNumber = decimal.TryParse(
+                    value,
+                    NumberStyles.Number,
+                    CultureInfo.CurrentCulture,
+                    out parsed)
+                || decimal.TryParse(
+                    value,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out parsed);
+
+            if (!validNumber || parsed < 0 || parsed > 10 || decimal.Round(parsed, 2) != parsed)
+            {
+                return false;
+            }
+
+            rating = parsed;
+            return true;
+        }
+
         internal static bool TryGetSelectedId(ComboBox comboBox, out int id)
         {
             id = 0;

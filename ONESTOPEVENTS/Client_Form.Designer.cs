@@ -141,8 +141,6 @@
             // CB_Selected_Client
             // 
             this.CB_Selected_Client.FormattingEnabled = true;
-            this.CB_Selected_Client.Items.AddRange(new object[] {
-            "test"});
             this.CB_Selected_Client.Location = new System.Drawing.Point(441, 47);
             this.CB_Selected_Client.Name = "CB_Selected_Client";
             this.CB_Selected_Client.Size = new System.Drawing.Size(234, 21);
@@ -399,8 +397,6 @@
             this.cbxUpdate_Client.Font = new System.Drawing.Font("Calibri", 12.25F);
             this.cbxUpdate_Client.FormattingEnabled = true;
             this.cbxUpdate_Client.IntegralHeight = false;
-            this.cbxUpdate_Client.Items.AddRange(new object[] {
-            "test"});
             this.cbxUpdate_Client.Location = new System.Drawing.Point(431, 27);
             this.cbxUpdate_Client.Name = "cbxUpdate_Client";
             this.cbxUpdate_Client.Size = new System.Drawing.Size(234, 27);
@@ -466,8 +462,6 @@
             // 
             this.cbxDeleteClient.Font = new System.Drawing.Font("Calibri", 12.25F);
             this.cbxDeleteClient.FormattingEnabled = true;
-            this.cbxDeleteClient.Items.AddRange(new object[] {
-            "test"});
             this.cbxDeleteClient.Location = new System.Drawing.Point(431, 27);
             this.cbxDeleteClient.Name = "cbxDeleteClient";
             this.cbxDeleteClient.Size = new System.Drawing.Size(234, 27);

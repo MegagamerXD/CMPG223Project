@@ -67,7 +67,5 @@ namespace ONESTOPEVENTS
                 form.ShowDialog(this);
             }
         }
-
-        private void Homepage_Load(object sender, EventArgs e) { }
     }
 }

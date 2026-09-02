@@ -547,9 +547,6 @@
   <data name="&gt;&gt;label15.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="cbxPartnerSelectedUpdate.Items" xml:space="preserve">
-    <value>test</value>
-  </data>
   <data name="cbxPartnerSelectedUpdate.Location" type="System.Drawing.Point, System.Drawing">
     <value>360, 187</value>
   </data>
@@ -605,9 +602,6 @@
   <data name="&gt;&gt;label16.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
-  <data name="cbxClientSelectedUpdate.Items" xml:space="preserve">
-    <value>test</value>
-  </data>
   <data name="cbxClientSelectedUpdate.Location" type="System.Drawing.Point, System.Drawing">
     <value>360, 137</value>
   </data>
@@ -628,9 +622,6 @@
   </data>
   <data name="&gt;&gt;cbxClientSelectedUpdate.ZOrder" xml:space="preserve">
     <value>5</value>
-  </data>
-  <data name="cbxUpdateEvent.Items" xml:space="preserve">
-    <value>test</value>
   </data>
   <data name="cbxUpdateEvent.Location" type="System.Drawing.Point, System.Drawing">
     <value>360, 28</value>
@@ -874,9 +865,6 @@
   </data>
   <data name="&gt;&gt;richTextBox2.ZOrder" xml:space="preserve">
     <value>14</value>
-  </data>
-  <data name="cbxUpdateEvent_Venue.Items" xml:space="preserve">
-    <value>test</value>
   </data>
   <data name="cbxUpdateEvent_Venue.Location" type="System.Drawing.Point, System.Drawing">
     <value>360, 82</value>
@@ -1184,9 +1172,6 @@
   <data name="&gt;&gt;tabPage2.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="cbxPartnerSelectedBook.Items" xml:space="preserve">
-    <value>test</value>
-  </data>
   <data name="cbxPartnerSelectedBook.Location" type="System.Drawing.Point, System.Drawing">
     <value>360, 143</value>
   </data>
@@ -1323,9 +1308,6 @@
   </data>
   <data name="&gt;&gt;label8.ZOrder" xml:space="preserve">
     <value>4</value>
-  </data>
-  <data name="cbxClientSelectedBook.Items" xml:space="preserve">
-    <value>test</value>
   </data>
   <data name="cbxClientSelectedBook.Location" type="System.Drawing.Point, System.Drawing">
     <value>360, 91</value>
@@ -1542,9 +1524,6 @@
   </data>
   <data name="&gt;&gt;label4.ZOrder" xml:space="preserve">
     <value>11</value>
-  </data>
-  <data name="cbxAddEventVenue.Items" xml:space="preserve">
-    <value>test</value>
   </data>
   <data name="cbxAddEventVenue.Location" type="System.Drawing.Point, System.Drawing">
     <value>360, 44</value>
@@ -1833,9 +1812,6 @@
   <data name="&gt;&gt;label3.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="CB_Selected_Event.Items" xml:space="preserve">
-    <value>test</value>
-  </data>
   <data name="CB_Selected_Event.Location" type="System.Drawing.Point, System.Drawing">
     <value>656, 47</value>
   </data>
@@ -2057,9 +2033,6 @@
   </data>
   <data name="&gt;&gt;btnCancel4.ZOrder" xml:space="preserve">
     <value>1</value>
-  </data>
-  <data name="cbxDeleteEvent.Items" xml:space="preserve">
-    <value>test</value>
   </data>
   <data name="cbxDeleteEvent.Location" type="System.Drawing.Point, System.Drawing">
     <value>360, 28</value>

@@ -11,7 +11,7 @@ includes an offline help assistant.
 
 - Create, view, update and delete workflows for all five database entities.
 - Shared validation for names, email, phone, website, descriptions, positive
-  prices and venue capacity.
+  prices, venue capacity and optional 0-10 venue ratings.
 - Typed SQL parameters and deterministic disposal of database resources.
 - Event creation, update and deletion through three stored procedures.
 - Venue and partner double-booking prevention at application and database level.

@@ -146,7 +146,6 @@
             this.dataGridView1.RowTemplate.Height = 28;
             this.dataGridView1.Size = new System.Drawing.Size(852, 175);
             this.dataGridView1.TabIndex = 3;
-            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
             // panel1
             // 
@@ -195,7 +194,6 @@
             this.label1.Size = new System.Drawing.Size(134, 17);
             this.label1.TabIndex = 8;
             this.label1.Text = "Select starting date:";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
             // 
@@ -207,7 +205,6 @@
             this.label2.Size = new System.Drawing.Size(130, 17);
             this.label2.TabIndex = 9;
             this.label2.Text = "Select ending date:";
-            this.label2.Click += new System.EventHandler(this.label2_Click_1);
             // 
             // monthCalendar2
             // 
@@ -249,7 +246,6 @@
             this.Name = "Reporting";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Reporting";
-            this.Load += new System.EventHandler(this.Reporting_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();

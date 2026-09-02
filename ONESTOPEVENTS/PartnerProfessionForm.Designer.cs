@@ -28,9 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tabAddProfession = new System.Windows.Forms.TabControl();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.btnCancel1 = new System.Windows.Forms.Button();
@@ -62,7 +59,6 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
-            this.tabControl1.SuspendLayout();
             this.tabAddProfession.SuspendLayout();
             this.tabPage6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvViewProfessions)).BeginInit();
@@ -72,37 +68,6 @@
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // tabControl1
-            // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(208, 427);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(200, 100);
-            this.tabControl1.TabIndex = 0;
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(192, 74);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // tabPage2
-            // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(192, 74);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
             // tabAddProfession
             // 
             this.tabAddProfession.Controls.Add(this.tabPage6);
@@ -168,8 +133,6 @@
             // CB_Selected_Profession
             // 
             this.CB_Selected_Profession.FormattingEnabled = true;
-            this.CB_Selected_Profession.Items.AddRange(new object[] {
-            "test"});
             this.CB_Selected_Profession.Location = new System.Drawing.Point(444, 58);
             this.CB_Selected_Profession.Name = "CB_Selected_Profession";
             this.CB_Selected_Profession.Size = new System.Drawing.Size(234, 27);
@@ -239,7 +202,6 @@
             this.label1.Size = new System.Drawing.Size(144, 23);
             this.label1.TabIndex = 9;
             this.label1.Text = "Profession name:";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // txtProfessionCost
             // 
@@ -345,8 +307,6 @@
             // 
             this.cbxPartnerUpdate.BackColor = System.Drawing.Color.WhiteSmoke;
             this.cbxPartnerUpdate.FormattingEnabled = true;
-            this.cbxPartnerUpdate.Items.AddRange(new object[] {
-            "test"});
             this.cbxPartnerUpdate.Location = new System.Drawing.Point(436, 23);
             this.cbxPartnerUpdate.Name = "cbxPartnerUpdate";
             this.cbxPartnerUpdate.Size = new System.Drawing.Size(238, 27);
@@ -475,7 +435,6 @@
             this.label7.Size = new System.Drawing.Size(549, 78);
             this.label7.TabIndex = 0;
             this.label7.Text = "Partner Professions";
-            this.label7.Click += new System.EventHandler(this.label7_Click);
             // 
             // PartnerProfessionForm
             // 
@@ -485,13 +444,11 @@
             this.ClientSize = new System.Drawing.Size(746, 627);
             this.Controls.Add(this.tabAddProfession);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.tabControl1);
             this.MaximizeBox = false;
             this.Name = "PartnerProfessionForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Partner Professions";
             this.Load += new System.EventHandler(this.PartnerProfessionForm_Load);
-            this.tabControl1.ResumeLayout(false);
             this.tabAddProfession.ResumeLayout(false);
             this.tabPage6.ResumeLayout(false);
             this.tabPage6.PerformLayout();
@@ -511,9 +468,6 @@
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TabControl tabAddProfession;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.TabPage tabPage4;

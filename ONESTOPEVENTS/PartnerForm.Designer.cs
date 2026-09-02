@@ -306,8 +306,6 @@
             // 
             this.cbxProfessionUpdate.BackColor = System.Drawing.Color.WhiteSmoke;
             this.cbxProfessionUpdate.FormattingEnabled = true;
-            this.cbxProfessionUpdate.Items.AddRange(new object[] {
-            "test"});
             this.cbxProfessionUpdate.Location = new System.Drawing.Point(438, 335);
             this.cbxProfessionUpdate.Name = "cbxProfessionUpdate";
             this.cbxProfessionUpdate.Size = new System.Drawing.Size(238, 27);
@@ -357,8 +355,6 @@
             // 
             this.cbxPartnerUpdate.BackColor = System.Drawing.Color.WhiteSmoke;
             this.cbxPartnerUpdate.FormattingEnabled = true;
-            this.cbxPartnerUpdate.Items.AddRange(new object[] {
-            "test"});
             this.cbxPartnerUpdate.Location = new System.Drawing.Point(438, 23);
             this.cbxPartnerUpdate.Name = "cbxPartnerUpdate";
             this.cbxPartnerUpdate.Size = new System.Drawing.Size(238, 27);
@@ -404,8 +400,6 @@
             // 
             this.cbxAddPartnerProfession.BackColor = System.Drawing.Color.WhiteSmoke;
             this.cbxAddPartnerProfession.FormattingEnabled = true;
-            this.cbxAddPartnerProfession.Items.AddRange(new object[] {
-            "test"});
             this.cbxAddPartnerProfession.Location = new System.Drawing.Point(438, 328);
             this.cbxAddPartnerProfession.Name = "cbxAddPartnerProfession";
             this.cbxAddPartnerProfession.Size = new System.Drawing.Size(238, 27);
@@ -611,8 +605,6 @@
             // CB_Selected_Partner
             // 
             this.CB_Selected_Partner.FormattingEnabled = true;
-            this.CB_Selected_Partner.Items.AddRange(new object[] {
-            "test"});
             this.CB_Selected_Partner.Location = new System.Drawing.Point(442, 58);
             this.CB_Selected_Partner.Name = "CB_Selected_Partner";
             this.CB_Selected_Partner.Size = new System.Drawing.Size(234, 27);

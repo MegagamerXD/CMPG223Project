@@ -22,8 +22,6 @@ namespace ONESTOPEVENTS
 
         private void PartnerProfessionForm_Load(object sender, EventArgs e)
         {
-            Controls.Remove(tabControl1);
-            tabControl1.Dispose();
             SetUpdateFieldsVisible(false);
             RefreshProfessionChoices();
         }
@@ -319,7 +317,5 @@ namespace ONESTOPEVENTS
         private void button1_Click(object sender, EventArgs e) { Close(); }
         private void btnProfessionDeteteCencel_Click(object sender, EventArgs e) { Close(); }
         private void btnCancel1_Click(object sender, EventArgs e) { Close(); }
-        private void label1_Click(object sender, EventArgs e) { }
-        private void label7_Click(object sender, EventArgs e) { }
     }
 }

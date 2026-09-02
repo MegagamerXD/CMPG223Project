@@ -98,6 +98,19 @@ namespace ONESTOPEVENTS
             parameters.Add(name, SqlDbType.Money).Value = value;
         }
 
+        internal static void AddNullableDecimal(
+            SqlParameterCollection parameters,
+            string name,
+            byte precision,
+            byte scale,
+            decimal? value)
+        {
+            SqlParameter parameter = parameters.Add(name, SqlDbType.Decimal);
+            parameter.Precision = precision;
+            parameter.Scale = scale;
+            parameter.Value = value.HasValue ? (object)value.Value : DBNull.Value;
+        }
+
         internal static void AddDate(SqlParameterCollection parameters, string name, DateTime value)
         {
             parameters.Add(name, SqlDbType.Date).Value = value.Date;

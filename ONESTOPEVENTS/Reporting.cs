@@ -1,5 +1,4 @@
 using System;
-using System.Data;
 using System.Data.SqlClient;
 using System.Windows.Forms;
 
@@ -134,10 +133,6 @@ namespace ONESTOPEVENTS
         private void radioButton2_CheckedChanged(object sender, EventArgs e) { ClearDataGridView(); }
         private void radioButton3_CheckedChanged(object sender, EventArgs e) { ClearDataGridView(); }
         private void radioButton4_CheckedChanged(object sender, EventArgs e) { ClearDataGridView(); }
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
-        private void label1_Click(object sender, EventArgs e) { }
-        private void label2_Click_1(object sender, EventArgs e) { }
-        private void Reporting_Load(object sender, EventArgs e) { }
         private void button2_Click(object sender, EventArgs e) { Close(); }
     }
 }

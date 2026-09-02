@@ -154,8 +154,6 @@
             // cbxPartnerSelectedUpdate
             // 
             this.cbxPartnerSelectedUpdate.FormattingEnabled = true;
-            this.cbxPartnerSelectedUpdate.Items.AddRange(new object[] {
-            resources.GetString("cbxPartnerSelectedUpdate.Items")});
             resources.ApplyResources(this.cbxPartnerSelectedUpdate, "cbxPartnerSelectedUpdate");
             this.cbxPartnerSelectedUpdate.Name = "cbxPartnerSelectedUpdate";
             // 
@@ -167,16 +165,12 @@
             // cbxClientSelectedUpdate
             // 
             this.cbxClientSelectedUpdate.FormattingEnabled = true;
-            this.cbxClientSelectedUpdate.Items.AddRange(new object[] {
-            resources.GetString("cbxClientSelectedUpdate.Items")});
             resources.ApplyResources(this.cbxClientSelectedUpdate, "cbxClientSelectedUpdate");
             this.cbxClientSelectedUpdate.Name = "cbxClientSelectedUpdate";
             // 
             // cbxUpdateEvent
             // 
             this.cbxUpdateEvent.FormattingEnabled = true;
-            this.cbxUpdateEvent.Items.AddRange(new object[] {
-            resources.GetString("cbxUpdateEvent.Items")});
             resources.ApplyResources(this.cbxUpdateEvent, "cbxUpdateEvent");
             this.cbxUpdateEvent.Name = "cbxUpdateEvent";
             this.cbxUpdateEvent.DropDown += new System.EventHandler(this.cbxUpdateEvent_DropDown);
@@ -230,8 +224,6 @@
             // cbxUpdateEvent_Venue
             // 
             this.cbxUpdateEvent_Venue.FormattingEnabled = true;
-            this.cbxUpdateEvent_Venue.Items.AddRange(new object[] {
-            resources.GetString("cbxUpdateEvent_Venue.Items")});
             resources.ApplyResources(this.cbxUpdateEvent_Venue, "cbxUpdateEvent_Venue");
             this.cbxUpdateEvent_Venue.Name = "cbxUpdateEvent_Venue";
             this.cbxUpdateEvent_Venue.SelectedIndexChanged += new System.EventHandler(this.cbxUpdateEvent_SelectedIndexChanged);
@@ -272,8 +264,6 @@
             // cbxPartnerSelectedBook
             // 
             this.cbxPartnerSelectedBook.FormattingEnabled = true;
-            this.cbxPartnerSelectedBook.Items.AddRange(new object[] {
-            resources.GetString("cbxPartnerSelectedBook.Items")});
             resources.ApplyResources(this.cbxPartnerSelectedBook, "cbxPartnerSelectedBook");
             this.cbxPartnerSelectedBook.Name = "cbxPartnerSelectedBook";
             // 
@@ -301,8 +291,6 @@
             // cbxClientSelectedBook
             // 
             this.cbxClientSelectedBook.FormattingEnabled = true;
-            this.cbxClientSelectedBook.Items.AddRange(new object[] {
-            resources.GetString("cbxClientSelectedBook.Items")});
             resources.ApplyResources(this.cbxClientSelectedBook, "cbxClientSelectedBook");
             this.cbxClientSelectedBook.Name = "cbxClientSelectedBook";
             // 
@@ -345,8 +333,6 @@
             // cbxAddEventVenue
             // 
             this.cbxAddEventVenue.FormattingEnabled = true;
-            this.cbxAddEventVenue.Items.AddRange(new object[] {
-            resources.GetString("cbxAddEventVenue.Items")});
             resources.ApplyResources(this.cbxAddEventVenue, "cbxAddEventVenue");
             this.cbxAddEventVenue.Name = "cbxAddEventVenue";
             this.cbxAddEventVenue.DropDown += new System.EventHandler(this.cbxAddEventVenue_DropDown);
@@ -403,8 +389,6 @@
             // CB_Selected_Event
             // 
             this.CB_Selected_Event.FormattingEnabled = true;
-            this.CB_Selected_Event.Items.AddRange(new object[] {
-            resources.GetString("CB_Selected_Event.Items")});
             resources.ApplyResources(this.CB_Selected_Event, "CB_Selected_Event");
             this.CB_Selected_Event.Name = "CB_Selected_Event";
             this.CB_Selected_Event.DropDown += new System.EventHandler(this.CB_Selected_Event_DropDown);
@@ -456,8 +440,6 @@
             // cbxDeleteEvent
             // 
             this.cbxDeleteEvent.FormattingEnabled = true;
-            this.cbxDeleteEvent.Items.AddRange(new object[] {
-            resources.GetString("cbxDeleteEvent.Items")});
             resources.ApplyResources(this.cbxDeleteEvent, "cbxDeleteEvent");
             this.cbxDeleteEvent.Name = "cbxDeleteEvent";
             this.cbxDeleteEvent.DropDown += new System.EventHandler(this.cbxDeleteEvent_DropDown);

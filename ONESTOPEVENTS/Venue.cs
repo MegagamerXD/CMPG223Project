@@ -34,9 +34,11 @@ namespace ONESTOPEVENTS
             string address;
             decimal price;
             int size;
+            decimal? rating;
             if (!TryReadVenue(txtADDVENUE_Name, rtbADDVENUE_Description,
                 rtbADDVENUE_Address, txtADDVENUE_Price, txtADDVENUE_Size,
-                out name, out description, out address, out price, out size))
+                txtADDVENUE_Rating, out name, out description, out address,
+                out price, out size, out rating))
             {
                 return;
             }
@@ -47,13 +49,13 @@ namespace ONESTOPEVENTS
                 Database.Execute(@"
                     INSERT INTO VENUES
                         (Venue_Name, Venue_Description, Venue_Address,
-                         Venue_Price, Venue_Size, Venue_HasKitchen)
+                         Venue_Price, Venue_Size, Venue_HasKitchen, Venue_Rating)
                     VALUES
-                        (@Name, @Description, @Address, @Price, @Size, @HasKitchen);",
+                        (@Name, @Description, @Address, @Price, @Size, @HasKitchen, @Rating);",
                     parameters =>
                     {
                         AddVenueParameters(parameters, name, description, address,
-                            price, size, hasKitchen);
+                            price, size, hasKitchen, rating);
                     });
 
                 ClearAddFields();
@@ -81,9 +83,11 @@ namespace ONESTOPEVENTS
             string address;
             decimal price;
             int size;
+            decimal? rating;
             if (!TryReadVenue(txtUpdateVenue_Name, rtbUpdateVenue_Description,
                 rtbUpdateVenue_Address, txtUpdateVenue_Price, txtUpdateVenue_Size,
-                out name, out description, out address, out price, out size))
+                txtUpdateVenue_Rating, out name, out description, out address,
+                out price, out size, out rating))
             {
                 return;
             }
@@ -98,12 +102,13 @@ namespace ONESTOPEVENTS
                         Venue_Address = @Address,
                         Venue_Price = @Price,
                         Venue_Size = @Size,
-                        Venue_HasKitchen = @HasKitchen
+                        Venue_HasKitchen = @HasKitchen,
+                        Venue_Rating = @Rating
                     WHERE Venue_ID = @VenueId;",
                     parameters =>
                     {
                         AddVenueParameters(parameters, name, description, address,
-                            price, size, hasKitchen);
+                            price, size, hasKitchen, rating);
                         Database.AddInt(parameters, "@VenueId", venueId);
                     });
 
@@ -207,7 +212,7 @@ namespace ONESTOPEVENTS
             {
                 DataTable venue = Database.Query(@"
                     SELECT Venue_Name, Venue_HasKitchen, Venue_Size,
-                           Venue_Description, Venue_Price, Venue_Address
+                           Venue_Description, Venue_Rating, Venue_Price, Venue_Address
                     FROM VENUES
                     WHERE Venue_ID = @VenueId;",
                     parameters => Database.AddInt(parameters, "@VenueId", venueId));
@@ -220,6 +225,9 @@ namespace ONESTOPEVENTS
                     rtbUpdateVenue_Address.Text = row.Field<string>("Venue_Address");
                     txtUpdateVenue_Price.Text = row.Field<decimal>("Venue_Price").ToString("0.00");
                     txtUpdateVenue_Size.Text = row.Field<int>("Venue_Size").ToString();
+                    txtUpdateVenue_Rating.Text = row.IsNull("Venue_Rating")
+                        ? string.Empty
+                        : row.Field<decimal>("Venue_Rating").ToString("0.##");
                     chbUpdateVenue_HasKitchen.Checked =
                         string.Equals(row.Field<string>("Venue_HasKitchen"), "Y",
                             StringComparison.OrdinalIgnoreCase);
@@ -294,17 +302,20 @@ namespace ONESTOPEVENTS
             RichTextBox addressControl,
             TextBox priceControl,
             TextBox sizeControl,
+            TextBox ratingControl,
             out string name,
             out string description,
             out string address,
             out decimal price,
-            out int size)
+            out int size,
+            out decimal? rating)
         {
             name = nameControl.Text.Trim();
             description = descriptionControl.Text.Trim();
             address = addressControl.Text.Trim();
             price = 0;
             size = 0;
+            rating = null;
 
             if (!ValidationHelper.IsTitle(name))
             {
@@ -343,6 +354,14 @@ namespace ONESTOPEVENTS
             }
 
             sizeControl.BackColor = Color.White;
+            if (!ValidationHelper.TryReadOptionalRating(ratingControl.Text.Trim(), out rating))
+            {
+                ShowValidationError(ratingControl,
+                    "Enter a venue rating from 0 to 10, or leave it blank.");
+                return false;
+            }
+
+            ratingControl.BackColor = Color.White;
             return true;
         }
 
@@ -353,7 +372,8 @@ namespace ONESTOPEVENTS
             string address,
             decimal price,
             int size,
-            char hasKitchen)
+            char hasKitchen,
+            decimal? rating)
         {
             Database.AddVarChar(parameters, "@Name", 50, name);
             Database.AddVarChar(parameters, "@Description", 255, description);
@@ -361,6 +381,7 @@ namespace ONESTOPEVENTS
             Database.AddMoney(parameters, "@Price", price);
             Database.AddInt(parameters, "@Size", size);
             Database.AddChar(parameters, "@HasKitchen", hasKitchen);
+            Database.AddNullableDecimal(parameters, "@Rating", 4, 2, rating);
         }
 
         private void SetUpdateFieldsVisible(bool visible)
@@ -370,6 +391,7 @@ namespace ONESTOPEVENTS
             lblUpdateVenueAddress.Visible = visible;
             lblUpdateVenuePrice.Visible = visible;
             lblUpdateVenueSize.Visible = visible;
+            lblUpdateVenueRating.Visible = visible;
             btnUpdateVenue.Visible = visible;
             chbUpdateVenue_HasKitchen.Visible = visible;
             txtUpdateVenue_Name.Visible = visible;
@@ -377,6 +399,7 @@ namespace ONESTOPEVENTS
             rtbUpdateVenue_Description.Visible = visible;
             txtUpdateVenue_Price.Visible = visible;
             txtUpdateVenue_Size.Visible = visible;
+            txtUpdateVenue_Rating.Visible = visible;
         }
 
         private void ClearAddFields()
@@ -386,6 +409,7 @@ namespace ONESTOPEVENTS
             rtbADDVENUE_Address.Clear();
             txtADDVENUE_Price.Clear();
             txtADDVENUE_Size.Clear();
+            txtADDVENUE_Rating.Clear();
             chbHasKitchen.Checked = false;
             txtADDVENUE_Name.Focus();
         }

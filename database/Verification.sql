@@ -114,7 +114,10 @@ BEGIN TRY
       AND Event_Date = '2099-12-31';
 
     UPDATE dbo.CLIENTS SET Client_SurName = 'Client Updated' WHERE Client_ID = @ClientId;
-    UPDATE dbo.VENUES SET Venue_Size = 90 WHERE Venue_ID = @VenueId;
+    UPDATE dbo.VENUES
+    SET Venue_Size = 90,
+        Venue_Rating = 9.75
+    WHERE Venue_ID = @VenueId;
     UPDATE dbo.PARTNERS SET Partner_SurName = 'Partner Updated' WHERE Partner_ID = @PartnerId;
     UPDATE dbo.PARTNER_PROFESSIONS SET Partner_Cost = 275.00 WHERE Profession_ID = @ProfessionId;
 
@@ -140,6 +143,7 @@ BEGIN TRY
           AND C.Client_ContactNumber = '0123456789'
           AND C.Client_SurName = 'Client Updated'
           AND V.Venue_Size = 90
+          AND V.Venue_Rating = 9.75
           AND P.Partner_SurName = 'Partner Updated'
           AND PP.Partner_Cost = 275.00
     )

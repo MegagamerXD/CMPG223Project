@@ -39,6 +39,8 @@
             this.chbHasKitchen = new System.Windows.Forms.CheckBox();
             this.rtbADDVENUE_Address = new System.Windows.Forms.RichTextBox();
             this.txtADDVENUE_Size = new System.Windows.Forms.TextBox();
+            this.lblADDVENUE_Rating = new System.Windows.Forms.Label();
+            this.txtADDVENUE_Rating = new System.Windows.Forms.TextBox();
             this.rtbADDVENUE_Description = new System.Windows.Forms.RichTextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -55,6 +57,8 @@
             this.cbxUpdateVenue = new System.Windows.Forms.ComboBox();
             this.rtbUpdateVenue_Address = new System.Windows.Forms.RichTextBox();
             this.txtUpdateVenue_Size = new System.Windows.Forms.TextBox();
+            this.lblUpdateVenueRating = new System.Windows.Forms.Label();
+            this.txtUpdateVenue_Rating = new System.Windows.Forms.TextBox();
             this.rtbUpdateVenue_Description = new System.Windows.Forms.RichTextBox();
             this.lblUpdateVenuePrice = new System.Windows.Forms.Label();
             this.lblUpdateVenueAddress = new System.Windows.Forms.Label();
@@ -148,8 +152,6 @@
             // CB_Selected_Venues
             // 
             this.CB_Selected_Venues.FormattingEnabled = true;
-            this.CB_Selected_Venues.Items.AddRange(new object[] {
-            "test"});
             this.CB_Selected_Venues.Location = new System.Drawing.Point(440, 56);
             this.CB_Selected_Venues.Name = "CB_Selected_Venues";
             this.CB_Selected_Venues.Size = new System.Drawing.Size(234, 27);
@@ -173,6 +175,8 @@
             this.tabPage1.BackColor = System.Drawing.Color.White;
             this.tabPage1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tabPage1.Controls.Add(this.chbHasKitchen);
+            this.tabPage1.Controls.Add(this.lblADDVENUE_Rating);
+            this.tabPage1.Controls.Add(this.txtADDVENUE_Rating);
             this.tabPage1.Controls.Add(this.rtbADDVENUE_Address);
             this.tabPage1.Controls.Add(this.txtADDVENUE_Size);
             this.tabPage1.Controls.Add(this.rtbADDVENUE_Description);
@@ -221,6 +225,26 @@
             this.txtADDVENUE_Size.Name = "txtADDVENUE_Size";
             this.txtADDVENUE_Size.Size = new System.Drawing.Size(238, 27);
             this.txtADDVENUE_Size.TabIndex = 5;
+            //
+            // lblADDVENUE_Rating
+            //
+            this.lblADDVENUE_Rating.AutoSize = true;
+            this.lblADDVENUE_Rating.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblADDVENUE_Rating.Location = new System.Drawing.Point(260, 335);
+            this.lblADDVENUE_Rating.Name = "lblADDVENUE_Rating";
+            this.lblADDVENUE_Rating.Size = new System.Drawing.Size(172, 19);
+            this.lblADDVENUE_Rating.TabIndex = 20;
+            this.lblADDVENUE_Rating.Text = "Rating (0-10, optional):";
+            //
+            // txtADDVENUE_Rating
+            //
+            this.txtADDVENUE_Rating.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.txtADDVENUE_Rating.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtADDVENUE_Rating.Location = new System.Drawing.Point(438, 332);
+            this.txtADDVENUE_Rating.MaxLength = 5;
+            this.txtADDVENUE_Rating.Name = "txtADDVENUE_Rating";
+            this.txtADDVENUE_Rating.Size = new System.Drawing.Size(238, 27);
+            this.txtADDVENUE_Rating.TabIndex = 7;
             // 
             // rtbADDVENUE_Description
             // 
@@ -262,7 +286,7 @@
             this.btnExit.Location = new System.Drawing.Point(501, 387);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(175, 50);
-            this.btnExit.TabIndex = 8;
+            this.btnExit.TabIndex = 9;
             this.btnExit.Text = "CANCEL";
             this.btnExit.UseVisualStyleBackColor = false;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
@@ -285,7 +309,7 @@
             this.btnAddVenue.Location = new System.Drawing.Point(34, 387);
             this.btnAddVenue.Name = "btnAddVenue";
             this.btnAddVenue.Size = new System.Drawing.Size(175, 50);
-            this.btnAddVenue.TabIndex = 7;
+            this.btnAddVenue.TabIndex = 8;
             this.btnAddVenue.Text = "ADD";
             this.btnAddVenue.UseVisualStyleBackColor = false;
             this.btnAddVenue.Click += new System.EventHandler(this.btnAddVenue_Click);
@@ -334,6 +358,8 @@
             this.tabPage2.BackColor = System.Drawing.Color.White;
             this.tabPage2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tabPage2.Controls.Add(this.chbUpdateVenue_HasKitchen);
+            this.tabPage2.Controls.Add(this.lblUpdateVenueRating);
+            this.tabPage2.Controls.Add(this.txtUpdateVenue_Rating);
             this.tabPage2.Controls.Add(this.label15);
             this.tabPage2.Controls.Add(this.cbxUpdateVenue);
             this.tabPage2.Controls.Add(this.rtbUpdateVenue_Address);
@@ -380,8 +406,6 @@
             // 
             this.cbxUpdateVenue.BackColor = System.Drawing.Color.WhiteSmoke;
             this.cbxUpdateVenue.FormattingEnabled = true;
-            this.cbxUpdateVenue.Items.AddRange(new object[] {
-            "test"});
             this.cbxUpdateVenue.Location = new System.Drawing.Point(438, 23);
             this.cbxUpdateVenue.Name = "cbxUpdateVenue";
             this.cbxUpdateVenue.Size = new System.Drawing.Size(238, 27);
@@ -408,6 +432,26 @@
             this.txtUpdateVenue_Size.Name = "txtUpdateVenue_Size";
             this.txtUpdateVenue_Size.Size = new System.Drawing.Size(238, 27);
             this.txtUpdateVenue_Size.TabIndex = 14;
+            //
+            // lblUpdateVenueRating
+            //
+            this.lblUpdateVenueRating.AutoSize = true;
+            this.lblUpdateVenueRating.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUpdateVenueRating.Location = new System.Drawing.Point(260, 334);
+            this.lblUpdateVenueRating.Name = "lblUpdateVenueRating";
+            this.lblUpdateVenueRating.Size = new System.Drawing.Size(172, 19);
+            this.lblUpdateVenueRating.TabIndex = 41;
+            this.lblUpdateVenueRating.Text = "Rating (0-10, optional):";
+            //
+            // txtUpdateVenue_Rating
+            //
+            this.txtUpdateVenue_Rating.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.txtUpdateVenue_Rating.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtUpdateVenue_Rating.Location = new System.Drawing.Point(438, 331);
+            this.txtUpdateVenue_Rating.MaxLength = 5;
+            this.txtUpdateVenue_Rating.Name = "txtUpdateVenue_Rating";
+            this.txtUpdateVenue_Rating.Size = new System.Drawing.Size(238, 27);
+            this.txtUpdateVenue_Rating.TabIndex = 16;
             // 
             // rtbUpdateVenue_Description
             // 
@@ -498,7 +542,7 @@
             this.btnCancel.Location = new System.Drawing.Point(501, 387);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(175, 50);
-            this.btnCancel.TabIndex = 17;
+            this.btnCancel.TabIndex = 18;
             this.btnCancel.Text = "CANCEL";
             this.btnCancel.UseVisualStyleBackColor = false;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
@@ -512,7 +556,7 @@
             this.btnUpdateVenue.Location = new System.Drawing.Point(34, 387);
             this.btnUpdateVenue.Name = "btnUpdateVenue";
             this.btnUpdateVenue.Size = new System.Drawing.Size(175, 50);
-            this.btnUpdateVenue.TabIndex = 16;
+            this.btnUpdateVenue.TabIndex = 17;
             this.btnUpdateVenue.Text = "UPDATE";
             this.btnUpdateVenue.UseVisualStyleBackColor = false;
             this.btnUpdateVenue.Click += new System.EventHandler(this.btnUpdateVenue_Click);
@@ -546,8 +590,6 @@
             // 
             this.cbxDeleteVenue.BackColor = System.Drawing.Color.WhiteSmoke;
             this.cbxDeleteVenue.FormattingEnabled = true;
-            this.cbxDeleteVenue.Items.AddRange(new object[] {
-            "test"});
             this.cbxDeleteVenue.Location = new System.Drawing.Point(438, 23);
             this.cbxDeleteVenue.Name = "cbxDeleteVenue";
             this.cbxDeleteVenue.Size = new System.Drawing.Size(238, 27);
@@ -669,8 +711,12 @@
         private System.Windows.Forms.RichTextBox rtbADDVENUE_Description;
         private System.Windows.Forms.RichTextBox rtbADDVENUE_Address;
         private System.Windows.Forms.TextBox txtADDVENUE_Size;
+        private System.Windows.Forms.Label lblADDVENUE_Rating;
+        private System.Windows.Forms.TextBox txtADDVENUE_Rating;
         private System.Windows.Forms.RichTextBox rtbUpdateVenue_Address;
         private System.Windows.Forms.TextBox txtUpdateVenue_Size;
+        private System.Windows.Forms.Label lblUpdateVenueRating;
+        private System.Windows.Forms.TextBox txtUpdateVenue_Rating;
         private System.Windows.Forms.RichTextBox rtbUpdateVenue_Description;
         private System.Windows.Forms.Label lblUpdateVenuePrice;
         private System.Windows.Forms.Label lblUpdateVenueAddress;
