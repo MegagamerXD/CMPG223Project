@@ -17,7 +17,7 @@ namespace ONESTOPEVENTS
         {
             InitializeComponent();
         }
-        SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-8Q3DTNR\SQLEXPRESS;initial catalog=OnestopEvents;trusted_connection=true");
+        SqlConnection con = Database.CreateConnection();
         SqlCommand cmd;
         SqlDataAdapter da;
         SqlDataReader re;
@@ -196,7 +196,7 @@ namespace ONESTOPEVENTS
 
         private void GenerateReport(string query, DateTime startDate, DateTime endDate)
         {
-            using (SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-8Q3DTNR\SQLEXPRESS;initial catalog=OnestopEvents;trusted_connection=true"))
+            using (SqlConnection con = Database.CreateConnection())
             {
                 try
                 {

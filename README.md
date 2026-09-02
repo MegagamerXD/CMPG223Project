@@ -14,11 +14,15 @@ date-filtered operational reports.
 
 ## Open and build
 
-1. Open `ONESTOPEVENTS.sln` in Visual Studio.
-2. Build the solution using the `Release` configuration.
-3. Configure and restore the `OnestopEvents` SQL Server database as described
-   in the database folder supplied with the project.
+1. Create the database by running `database/DatabaseSetup.sql` against
+   `(LocalDB)\MSSQLLocalDB`, or import `database/OnestopEvents.bacpac`.
+2. Open `ONESTOPEVENTS.sln` in Visual Studio.
+3. Build the solution using the `Release` configuration.
 4. Run the `ONESTOPEVENTS` project.
+
+The default database connection is stored under `OneStopEvents` in
+`ONESTOPEVENTS/App.config`. Change only that setting when using another SQL
+Server instance.
 
 The project documentation is included as
 `CMPG223_43700292_Documentation.docx`.

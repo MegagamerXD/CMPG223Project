@@ -23,7 +23,7 @@ namespace Events_Form
         }
 
         // Initialise variables
-        SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-8Q3DTNR\SQLEXPRESS;initial catalog=OnestopEvents;trusted_connection=true");
+        SqlConnection con = Database.CreateConnection();
         SqlCommand cmd;
         SqlDataAdapter da;
         SqlDataReader re;
