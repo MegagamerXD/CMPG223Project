@@ -1,360 +1,304 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace ONESTOPEVENTS
 {
     public partial class PartnerProfessionForm : Form
     {
+        private const string ProfessionChoiceQuery = @"
+            SELECT Profession_ID, Partner_Profession
+            FROM PARTNER_PROFESSIONS
+            ORDER BY Partner_Profession;";
+
+        private bool loadingChoices;
+
         public PartnerProfessionForm()
         {
             InitializeComponent();
         }
 
-        //Declaration of variables
-        SqlConnection con = Database.CreateConnection();
-        SqlCommand cmd;
-        SqlDataAdapter da;
-        SqlDataReader re;
-        DataSet ds;
-        DataTable dt;
-
-        string profName;
-        decimal profCost;
-        int profID;
-
         private void PartnerProfessionForm_Load(object sender, EventArgs e)
         {
-            lblProfessionCost.Visible = false;
-            lblProfessionName.Visible = false;
-            btnProfessionUpdate.Visible = false;
-            txtProfessionNameUpdate.Visible = false;
-            txtProfessionCostUpdate.Visible = false;
-
-            try
-            {
-                con.Open();
-                cmd = new SqlCommand("SELECT Profession_ID, Partner_Profession FROM PARTNER_PROFESSIONS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBoxxes
-                cbxPartnerUpdate.DisplayMember = "Partner_Profession";
-                cbxPartnerUpdate.ValueMember = "Profession_ID";
-                cbxPartnerUpdate.DataSource = dt;
-                cbxProfessionDelete.DisplayMember = "Partner_Profession";
-                cbxProfessionDelete.ValueMember = "Profession_ID";
-                cbxProfessionDelete.DataSource = dt;
-                CB_Selected_Profession.DisplayMember = "Partner_Profession";
-                CB_Selected_Profession.ValueMember = "Profession_ID";
-                CB_Selected_Profession.DataSource = dt;
-                con.Close();
-            }
-            catch (SqlException ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
-        }
-
-        private void cbxPartnerUpdate_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cbxPartnerUpdate.SelectedIndex != -1)
-            {
-                lblProfessionCost.Visible = true;
-                lblProfessionName.Visible = true;
-                btnProfessionUpdate.Visible = true;
-                txtProfessionNameUpdate.Visible = true;
-                txtProfessionCostUpdate.Visible = true;
-            }
-        }
-
-        private void label7_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
+            SetUpdateFieldsVisible(false);
+            RefreshProfessionChoices();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            profName = txtProfessionName.Text.Trim();
-
-            if (profName.Length <= 1 || !System.Text.RegularExpressions.Regex.IsMatch(profName, @"^[a-zA-Z\s]+$"))
+            string professionName;
+            decimal professionCost;
+            if (!TryReadProfession(txtProfessionName, txtProfessionCost,
+                out professionName, out professionCost))
             {
-                txtProfessionName.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid profession name with only letters and more than 1 character.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
-            }
-            else
-            {
-                txtProfessionName.BackColor = Color.White;
-            }
-
-            if (!decimal.TryParse(txtProfessionCost.Text, out profCost) || profCost <= 0)
-            {
-                txtProfessionCost.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid positive decimal number for Profession Cost.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                txtProfessionCost.BackColor = Color.White;
             }
 
             try
             {
-                con.Open();
-                cmd = new SqlCommand("INSERT INTO PARTNER_PROFESSIONS (Partner_Profession, Partner_Cost) VALUES (@Partner_Profession, @Partner_Cost)", con);
-                cmd.Parameters.AddWithValue("@Partner_Profession", profName);
-                cmd.Parameters.AddWithValue("@Partner_Cost", profCost);
-                cmd.ExecuteNonQuery();
-                con.Close();
+                Database.Execute(@"
+                    INSERT INTO PARTNER_PROFESSIONS (Partner_Profession, Partner_Cost)
+                    VALUES (@ProfessionName, @ProfessionCost);",
+                    parameters =>
+                    {
+                        Database.AddVarChar(parameters, "@ProfessionName", 150, professionName);
+                        Database.AddMoney(parameters, "@ProfessionCost", professionCost);
+                    });
 
-                MessageBox.Show("Profession added successfully");
+                txtProfessionName.Clear();
+                txtProfessionCost.Clear();
+                RefreshProfessionChoices();
+                MessageBox.Show("Profession added successfully.", "One Stop Events",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (SqlException ex)
             {
-                MessageBox.Show(ex.Message);
+                ShowDatabaseError("add the profession", ex);
             }
-        }
-
-        private void groupBox2_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnExit_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void groupBox1_Enter(object sender, EventArgs e)
-        {
-
         }
 
         private void btnProfessionUpdate_Click(object sender, EventArgs e)
         {
-            profName = txtProfessionNameUpdate.Text.Trim();
-
-            if (profName.Length <= 1 || !System.Text.RegularExpressions.Regex.IsMatch(profName, @"^[a-zA-Z\s]+$"))
+            int professionId;
+            if (!ValidationHelper.TryGetSelectedId(cbxPartnerUpdate, out professionId))
             {
-                txtProfessionNameUpdate.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid profession name with only letters and more than 1 character.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowSelectionError(cbxPartnerUpdate, "Select a profession to update.");
                 return;
             }
-            else
-            {
-                txtProfessionNameUpdate.BackColor = Color.White;
-            }
 
-            if (!decimal.TryParse(txtProfessionCostUpdate.Text, out profCost) || profCost <= 0)
+            string professionName;
+            decimal professionCost;
+            if (!TryReadProfession(txtProfessionNameUpdate, txtProfessionCostUpdate,
+                out professionName, out professionCost))
             {
-                txtProfessionCostUpdate.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid positive decimal number for Profession Cost.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            else
-            {
-                txtProfessionCostUpdate.BackColor = Color.White;
-            }
-
-            // Retrieve Pid from the combobox (cbxPartnerUpdate)
-            int Pid = (int)cbxPartnerUpdate.SelectedValue;
 
             try
             {
-                con.Open();
+                Database.Execute(@"
+                    UPDATE PARTNER_PROFESSIONS
+                    SET Partner_Profession = @ProfessionName,
+                        Partner_Cost = @ProfessionCost
+                    WHERE Profession_ID = @ProfessionId;",
+                    parameters =>
+                    {
+                        Database.AddVarChar(parameters, "@ProfessionName", 150, professionName);
+                        Database.AddMoney(parameters, "@ProfessionCost", professionCost);
+                        Database.AddInt(parameters, "@ProfessionId", professionId);
+                    });
 
-                // Correct the SQL UPDATE statement
-                cmd = new SqlCommand("UPDATE PARTNER_PROFESSIONS SET Partner_Profession = @Partner_Profession, Partner_Cost = @Partner_Cost WHERE Profession_ID = @Profession_ID", con);
-
-                // Add parameters with values
-                cmd.Parameters.AddWithValue("@Partner_Profession", profName);
-                cmd.Parameters.AddWithValue("@Partner_Cost", profCost);
-                cmd.Parameters.AddWithValue("@Profession_ID", Pid);
-
-                // Execute the query
-                cmd.ExecuteNonQuery();
-
-                // Close the connection
-                con.Close();
-
-                MessageBox.Show("Profession updated successfully");
+                RefreshProfessionChoices();
+                SetUpdateFieldsVisible(false);
+                MessageBox.Show("Profession updated successfully.", "One Stop Events",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (SqlException ex)
             {
-                MessageBox.Show("SQL Error: " + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
+                ShowDatabaseError("update the profession", ex);
             }
         }
 
         private void BtnDeleteProfession_Click(object sender, EventArgs e)
         {
-            int profID = (int)cbxProfessionDelete.SelectedValue;
+            int professionId;
+            if (!ValidationHelper.TryGetSelectedId(cbxProfessionDelete, out professionId))
+            {
+                ShowSelectionError(cbxProfessionDelete, "Select a profession to delete.");
+                return;
+            }
+
             try
             {
-                con.Open();
-
-                // Check for dependencies
-                cmd = new SqlCommand(@"
-        SELECT COUNT(*) 
-        FROM PARTNERS 
-        WHERE Profession_ID = @Profession_ID;
-    ", con);
-                cmd.Parameters.AddWithValue("@Profession_ID", profID);
-                int partnerCount = (int)cmd.ExecuteScalar();
-
-                if (partnerCount > 0)
-                {
-                    MessageBox.Show("Cannot delete this profession. It is referenced by existing partners.");
-                }
-                else
-                {
-                    // No dependencies, safe to delete
-                    cmd = new SqlCommand("DELETE FROM PARTNER_PROFESSIONS WHERE Profession_ID = @Profession_ID", con);
-                    cmd.Parameters.AddWithValue("@Profession_ID", profID);
-                    cmd.ExecuteNonQuery();
-                    MessageBox.Show("Profession deleted successfully");
-                }
+                Database.Execute(@"
+                    DELETE FROM PARTNER_PROFESSIONS
+                    WHERE Profession_ID = @ProfessionId;",
+                    parameters => Database.AddInt(parameters, "@ProfessionId", professionId));
+                RefreshProfessionChoices();
+                MessageBox.Show("Profession deleted successfully.", "One Stop Events",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (SqlException ex)
             {
-                MessageBox.Show(ex.Message);
+                ShowDatabaseError("delete the profession", ex);
             }
-            finally
-            {
-                con.Close();
-            }
-        }
-
-        private void cbxPartnerUpdate_DropDown(object sender, EventArgs e)
-        {
-            try
-            {
-                con.Open();
-                cmd = new SqlCommand("SELECT Profession_ID, Partner_Profession FROM PARTNER_PROFESSIONS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBoxxes
-                cbxPartnerUpdate.DisplayMember = "Partner_Profession";
-                cbxPartnerUpdate.ValueMember = "Profession_ID";
-                cbxPartnerUpdate.DataSource = dt;
-                con.Close();
-            }
-            catch (SqlException ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
-        }
-
-        private void cbxProfessionDelete_DropDown(object sender, EventArgs e)
-        {
-            try
-            {
-                con.Open();
-                cmd = new SqlCommand("SELECT Profession_ID, Partner_Profession FROM PARTNER_PROFESSIONS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBoxxes
-                cbxProfessionDelete.DisplayMember = "Partner_Profession";
-                cbxProfessionDelete.ValueMember = "Profession_ID";
-                cbxProfessionDelete.DataSource = dt;
-                con.Close();
-            }
-            catch (SqlException ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
-        }
-
-        private void btnProfessionDeteteCencel_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void btnCancel1_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
 
         private void BtnViewProfession_Click(object sender, EventArgs e)
         {
-            profID = (int)CB_Selected_Profession.SelectedValue;
+            int professionId;
+            if (!ValidationHelper.TryGetSelectedId(CB_Selected_Profession, out professionId))
+            {
+                ShowSelectionError(CB_Selected_Profession, "Select a profession to view.");
+                return;
+            }
+
             try
             {
-                // Open the connection
-                con.Open();
-
-                // Create the SQL command to retrieve the required client information
-                cmd = new SqlCommand("SELECT Partner_Profession, Partner_Cost  FROM PARTNER_PROFESSIONS WHERE Profession_ID = @Profession_ID", con);
-                cmd.Parameters.AddWithValue("@Profession_ID", profID);
-                // Create a DataAdapter to fill a DataTable with the retrieved data
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // Bind the DataTable to the DataGridView
-                dgvViewProfessions.DataSource = dt;
-
-                // Close the connection
-                con.Close();
-            }
-            catch (Exception ex)
-            {
-                // Handle any exceptions that may occur
-                MessageBox.Show("Error: " + ex.Message);
-            }
-        }
-
-        private void CB_Selected_Profession_DropDown(object sender, EventArgs e)
-        {
-            try
-            {
-                con.Open();
-                cmd = new SqlCommand("SELECT Profession_ID, Partner_Profession FROM PARTNER_PROFESSIONS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBoxxes
-                CB_Selected_Profession.DisplayMember = "Partner_Profession";
-                CB_Selected_Profession.ValueMember = "Profession_ID";
-                CB_Selected_Profession.DataSource = dt;
-                con.Close();
+                dgvViewProfessions.DataSource = Database.Query(@"
+                    SELECT Partner_Profession AS [Profession],
+                           Partner_Cost AS [Daily cost]
+                    FROM PARTNER_PROFESSIONS
+                    WHERE Profession_ID = @ProfessionId;",
+                    parameters => Database.AddInt(parameters, "@ProfessionId", professionId));
             }
             catch (SqlException ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                ShowDatabaseError("load the profession", ex);
             }
         }
+
+        private void cbxPartnerUpdate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (loadingChoices)
+            {
+                return;
+            }
+
+            int professionId;
+            bool selected = ValidationHelper.TryGetSelectedId(cbxPartnerUpdate, out professionId);
+            SetUpdateFieldsVisible(selected);
+            if (!selected)
+            {
+                return;
+            }
+
+            try
+            {
+                DataTable profession = Database.Query(@"
+                    SELECT Partner_Profession, Partner_Cost
+                    FROM PARTNER_PROFESSIONS
+                    WHERE Profession_ID = @ProfessionId;",
+                    parameters => Database.AddInt(parameters, "@ProfessionId", professionId));
+
+                if (profession.Rows.Count == 1)
+                {
+                    DataRow row = profession.Rows[0];
+                    txtProfessionNameUpdate.Text = row.Field<string>("Partner_Profession");
+                    txtProfessionCostUpdate.Text = row.Field<decimal>("Partner_Cost").ToString("0.00");
+                }
+            }
+            catch (SqlException ex)
+            {
+                ShowDatabaseError("load the selected profession", ex);
+            }
+        }
+
+        private void RefreshProfessionChoices()
+        {
+            try
+            {
+                DataTable professions = Database.Query(ProfessionChoiceQuery);
+                loadingChoices = true;
+                BindProfession(cbxPartnerUpdate, professions.Copy());
+                BindProfession(cbxProfessionDelete, professions.Copy());
+                BindProfession(CB_Selected_Profession, professions);
+            }
+            catch (SqlException ex)
+            {
+                ShowDatabaseError("load professions", ex);
+            }
+            finally
+            {
+                loadingChoices = false;
+            }
+        }
+
+        private void RefreshSingleProfessionChoice(ComboBox comboBox)
+        {
+            try
+            {
+                object selectedValue = comboBox.SelectedValue;
+                loadingChoices = true;
+                BindProfession(comboBox, Database.Query(ProfessionChoiceQuery));
+                if (selectedValue != null)
+                {
+                    comboBox.SelectedValue = selectedValue;
+                }
+            }
+            catch (SqlException ex)
+            {
+                ShowDatabaseError("refresh professions", ex);
+            }
+            finally
+            {
+                loadingChoices = false;
+            }
+        }
+
+        private static void BindProfession(ComboBox comboBox, DataTable data)
+        {
+            comboBox.DisplayMember = "Partner_Profession";
+            comboBox.ValueMember = "Profession_ID";
+            comboBox.DataSource = data;
+            comboBox.SelectedIndex = -1;
+        }
+
+        private static bool TryReadProfession(
+            TextBox nameControl,
+            TextBox costControl,
+            out string professionName,
+            out decimal professionCost)
+        {
+            professionName = nameControl.Text.Trim();
+            professionCost = 0;
+
+            if (!ValidationHelper.IsPersonName(professionName))
+            {
+                ShowValidationError(nameControl, "Enter a valid profession name.");
+                return false;
+            }
+
+            nameControl.BackColor = Color.White;
+            if (!ValidationHelper.TryReadPositiveMoney(costControl.Text.Trim(), out professionCost))
+            {
+                ShowValidationError(costControl, "Enter a positive profession cost.");
+                return false;
+            }
+
+            costControl.BackColor = Color.White;
+            return true;
+        }
+
+        private void SetUpdateFieldsVisible(bool visible)
+        {
+            lblProfessionCost.Visible = visible;
+            lblProfessionName.Visible = visible;
+            btnProfessionUpdate.Visible = visible;
+            txtProfessionNameUpdate.Visible = visible;
+            txtProfessionCostUpdate.Visible = visible;
+        }
+
+        private static void ShowValidationError(Control control, string message)
+        {
+            control.BackColor = Color.MistyRose;
+            MessageBox.Show(message, "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            control.Focus();
+        }
+
+        private static void ShowSelectionError(ComboBox comboBox, string message)
+        {
+            comboBox.BackColor = Color.MistyRose;
+            MessageBox.Show(message, "Selection required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            comboBox.Focus();
+        }
+
+        private static void ShowDatabaseError(string action, Exception exception)
+        {
+            MessageBox.Show("Unable to " + action + ".\n\n" + exception.Message,
+                "Database error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void cbxPartnerUpdate_DropDown(object sender, EventArgs e) { RefreshSingleProfessionChoice(cbxPartnerUpdate); }
+        private void cbxProfessionDelete_DropDown(object sender, EventArgs e) { RefreshSingleProfessionChoice(cbxProfessionDelete); }
+        private void CB_Selected_Profession_DropDown(object sender, EventArgs e) { RefreshSingleProfessionChoice(CB_Selected_Profession); }
+        private void btnExit_Click(object sender, EventArgs e) { Close(); }
+        private void button1_Click(object sender, EventArgs e) { Close(); }
+        private void btnProfessionDeteteCencel_Click(object sender, EventArgs e) { Close(); }
+        private void btnCancel1_Click(object sender, EventArgs e) { Close(); }
+        private void label1_Click(object sender, EventArgs e) { }
+        private void label7_Click(object sender, EventArgs e) { }
     }
 }

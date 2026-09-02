@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database.cs" />
+    <Compile Include="ValidationHelper.cs" />
     <Compile Include="PartnerForm.cs">
       <SubType>Form</SubType>
     </Compile>

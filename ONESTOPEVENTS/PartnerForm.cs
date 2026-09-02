@@ -1,596 +1,469 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ONESTOPEVENTS
 {
     public partial class Partner_Form : Form
     {
+        private const string PartnerChoiceQuery = @"
+            SELECT Partner_ID,
+                   Partner_FirstName + ' ' + Partner_SurName AS PartnerFullName
+            FROM PARTNERS
+            ORDER BY Partner_FirstName, Partner_SurName;";
+
+        private const string ProfessionChoiceQuery = @"
+            SELECT Profession_ID, Partner_Profession
+            FROM PARTNER_PROFESSIONS
+            ORDER BY Partner_Profession;";
+
+        private bool loadingChoices;
+
         public Partner_Form()
         {
             InitializeComponent();
         }
 
-        //declaration of variables
-        SqlConnection con = Database.CreateConnection();
-        SqlCommand cmd;
-        SqlDataAdapter da;
-        SqlDataReader re;
-        DataSet ds;
-        DataTable dt;
-
-        string pName;
-        string pSurName;
-        string pContactNumber;
-        string pEmail;
-        string pURL;
-        int profession;
-        int pID;
-        int profID;
-        int pIntNum;
-
         private void Partner_Form_Load(object sender, EventArgs e)
         {
             BtnDelete.Visible = false;
-            btnUpdate.Visible = false;
-            lblPNameUpdate.Visible = false;
-            lblPSurnameUpdate.Visible = false;
-            lblPContactNumberUpdate.Visible = false;
-            lblPEmailUpdate.Visible = false;
-            lblPURLUpdate.Visible = false;
-            lblPProfessionUpdate.Visible = false;
-            txtPNameUpdate.Visible = false;
-            txtPContactNumberUpdate.Visible = false;
-            txtPEmailUpdate.Visible = false;
-            txtPURLUpdate.Visible = false;
-            cbxProfessionUpdate.Visible = false;
-            txtPSurnameUpdate.Visible = false;
-
-            try
-            {
-                con.Open();
-                cmd = new SqlCommand("SELECT Profession_ID, Partner_Profession FROM PARTNER_PROFESSIONS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBox
-                cbxAddPartnerProfession.DisplayMember = "Partner_Profession";
-                cbxAddPartnerProfession.ValueMember = "Profession_ID";
-                cbxAddPartnerProfession.DataSource = dt;
-                cbxProfessionUpdate.DisplayMember = "Partner_Profession";
-                cbxProfessionUpdate.ValueMember = "Profession_ID";
-                cbxProfessionUpdate.DataSource = dt;
-
-                cmd = new SqlCommand("SELECT Partner_ID, (Partner_FirstName + ' ' + Partner_SurName) AS PartnerFullName FROM PARTNERS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBox
-                cbxPartnerUpdate.DisplayMember = "PartnerFullName";
-                cbxPartnerUpdate.ValueMember = "Partner_ID";
-                cbxPartnerUpdate.DataSource = dt;
-                cbxPSelectDelete.DisplayMember = "PartnerFullName";
-                cbxPSelectDelete.ValueMember = "Partner_ID";
-                cbxPSelectDelete.DataSource = dt;
-                CB_Selected_Partner.DisplayMember = "PartnerFullName";
-                CB_Selected_Partner.ValueMember = "Partner_ID";
-                CB_Selected_Partner.DataSource = dt;
-                con.Close();
-            }
-            catch (SqlException ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
-        }
-
-        private void cbxPartner_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cbxPartnerUpdate.SelectedIndex != -1)
-            {
-                // Show all fields
-                btnUpdate.Visible = true;
-                lblPNameUpdate.Visible = true;
-                lblPSurnameUpdate.Visible = true;
-                lblPContactNumberUpdate.Visible = true;
-                lblPEmailUpdate.Visible = true;
-                lblPURLUpdate.Visible = true;
-                lblPProfessionUpdate.Visible = true;
-                txtPNameUpdate.Visible = true;
-                txtPContactNumberUpdate.Visible = true;
-                txtPEmailUpdate.Visible = true;
-                txtPURLUpdate.Visible = true;
-                cbxProfessionUpdate.Visible = true;
-                txtPSurnameUpdate.Visible = true;
-            }
+            SetUpdateFieldsVisible(false);
+            RefreshAllChoices();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            //Validate Partner name
-            pName = txtPartnerName.Text.Trim();
-            if (pName.Length <= 1 || !System.Text.RegularExpressions.Regex.IsMatch(pName, @"^[a-zA-Z\s]+$"))
+            string firstName;
+            string surname;
+            string phone;
+            string email;
+            string website;
+            int professionId;
+            if (!TryReadPartner(txtPartnerName, txtPartnerSurname, txtPartnerContactNumber,
+                txtPartnerEmail, txtPartnerWebsite, cbxAddPartnerProfession,
+                out firstName, out surname, out phone, out email, out website, out professionId))
             {
-                txtPartnerName.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid partner name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            else
-            {
-                txtPartnerName.BackColor = Color.White;
-            }
-
-            //Validate partner surname
-            pSurName = txtPartnerSurname.Text.Trim();
-            if (pSurName.Length <= 1 || !System.Text.RegularExpressions.Regex.IsMatch(pSurName, @"^[a-zA-Z\s]+$"))
-            {
-                txtPartnerSurname.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid partner surname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                txtPartnerSurname.BackColor = Color.White;
-            }
-
-            //Validate phone number
-            pContactNumber = txtPartnerContactNumber.Text.Trim();
-            if (pContactNumber.Length != 10 || !pContactNumber.All(char.IsDigit))
-            {
-                txtPartnerContactNumber.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid phone number with exactly 10 digits.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                txtPartnerContactNumber.BackColor = Color.White;
-                pIntNum = int.Parse(pContactNumber);
-            }
-
-            //Validate email
-            pEmail = txtPartnerEmail.Text.Trim();
-            if (string.IsNullOrEmpty(pEmail) || !(pEmail.Contains("@")) || !(pEmail.Contains(".")))
-            {
-                txtPartnerEmail.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid email address with an '@' & '.' symbol.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                txtPartnerEmail.BackColor = Color.White;
-            }
-
-            //Validate website URL
-            pURL = txtPartnerWebsite.Text.Trim();
-            if (!pURL.Contains(".") || pURL.Length < 3)
-            {
-                txtPartnerWebsite.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid website URL.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                txtPartnerWebsite.BackColor = Color.White;
-            }
-
-            // Validate Profession
-            profession = cbxAddPartnerProfession.SelectedIndex;
-            if (profession == -1)
-            {
-                cbxAddPartnerProfession.BackColor = Color.Red;
-                MessageBox.Show("Please select a profession.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                cbxAddPartnerProfession.BackColor = Color.White;
-                profID = (int)cbxAddPartnerProfession.SelectedValue;
-            }
-            /* ###END OF ADD BUTTON VALIDATION### */
 
             try
             {
-                con.Open();
-                cmd = new SqlCommand("INSERT INTO PARTNERS (Partner_FirstName, Partner_SurName, Partner_ContactNumber, Partner_Email, Partner_Domain, Profession_ID) VALUES (@Partner_FirstName, @Partner_SurName, @Partner_ContactNumber, @Partner_Email, @Partner_Domain, @Profession_ID)", con);
-                cmd.Parameters.AddWithValue("@Partner_FirstName", pName);
-                cmd.Parameters.AddWithValue("@Partner_SurName", pSurName);
-                cmd.Parameters.AddWithValue("@Partner_ContactNumber", pIntNum);
-                cmd.Parameters.AddWithValue("@Partner_Email", pEmail);
-                cmd.Parameters.AddWithValue("@Partner_Domain", pURL);
-                cmd.Parameters.AddWithValue("@Profession_ID", profID);
-                cmd.ExecuteNonQuery();
-                con.Close();
+                Database.Execute(@"
+                    INSERT INTO PARTNERS
+                        (Partner_FirstName, Partner_SurName, Partner_ContactNumber,
+                         Partner_Email, Partner_Domain, Profession_ID)
+                    VALUES
+                        (@FirstName, @Surname, @Phone, @Email, @Website, @ProfessionId);",
+                    parameters =>
+                    {
+                        AddPartnerParameters(parameters, firstName, surname, phone, email, website, professionId);
+                    });
 
-                MessageBox.Show("Partner added successfully");
+                ClearAddFields();
+                RefreshPartnerChoices();
+                MessageBox.Show("Partner added successfully.", "One Stop Events",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (SqlException ex)
             {
-                MessageBox.Show(ex.Message);
+                ShowDatabaseError("add the partner", ex);
             }
-        }
-
-        private void btnExit_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            // Update Button Validation
-            pName = txtPNameUpdate.Text.Trim();
-            if (pName.Length <= 1 || !System.Text.RegularExpressions.Regex.IsMatch(pName, @"^[a-zA-Z\s]+$"))
+            int partnerId;
+            if (!ValidationHelper.TryGetSelectedId(cbxPartnerUpdate, out partnerId))
             {
-                txtPNameUpdate.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid partner name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowSelectionError(cbxPartnerUpdate, "Select a partner to update.");
                 return;
             }
-            else
-            {
-                txtPNameUpdate.BackColor = Color.White;
-            }
 
-            //Validate partner surname
-            pSurName = txtPSurnameUpdate.Text.Trim();
-            if (pSurName.Length <= 1 || !System.Text.RegularExpressions.Regex.IsMatch(pSurName, @"^[a-zA-Z\s]+$"))
+            string firstName;
+            string surname;
+            string phone;
+            string email;
+            string website;
+            int professionId;
+            if (!TryReadPartner(txtPNameUpdate, txtPSurnameUpdate, txtPContactNumberUpdate,
+                txtPEmailUpdate, txtPURLUpdate, cbxProfessionUpdate,
+                out firstName, out surname, out phone, out email, out website, out professionId))
             {
-                txtPSurnameUpdate.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid partner surname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            else
-            {
-                txtPSurnameUpdate.BackColor = Color.White;
-            }
 
-            //Validate phone number
-            pContactNumber = txtPContactNumberUpdate.Text.Trim();
-            if (pContactNumber.Length != 10 || !pContactNumber.All(char.IsDigit))
-            {
-                txtPContactNumberUpdate.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid phone number with exactly 10 digits.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                txtPContactNumberUpdate.BackColor = Color.White;
-                pIntNum = int.Parse(pContactNumber);
-            }
-
-            //Validate email
-            pEmail = txtPEmailUpdate.Text.Trim();
-            if (string.IsNullOrEmpty(pEmail) || !(pEmail.Contains("@")) || !(pEmail.Contains(".")))
-            {
-                txtPEmailUpdate.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid email address with an '@' & '.' symbol.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                txtPEmailUpdate.BackColor = Color.White;
-            }
-
-            //Validate website URL
-            pURL = txtPURLUpdate.Text.Trim();
-            if (!pURL.Contains(".") || pURL.Length < 3)
-            {
-                txtPURLUpdate.BackColor = Color.Red;
-                MessageBox.Show("Please enter a valid website URL.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                txtPURLUpdate.BackColor = Color.White;
-            }
-
-            profession = cbxProfessionUpdate.SelectedIndex;
-            if (profession == -1)
-            {
-                cbxProfessionUpdate.BackColor = Color.Red;
-                MessageBox.Show("Please select a profession.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            else
-            {
-                cbxProfessionUpdate.BackColor = Color.White;
-                profID = (int)cbxProfessionUpdate.SelectedValue;
-            }
-            // END OF VALIDATION
-
-            pID = (int)cbxPartnerUpdate.SelectedValue;
             try
             {
-                con.Open();
-                cmd = new SqlCommand("UPDATE PARTNERS SET Partner_FirstName = @Partner_FirstName, Partner_SurName = @Partner_SurName, Partner_ContactNumber = @Partner_ContactNumber, Partner_Email = @Partner_Email, Partner_Domain = @Partner_Domain, Profession_ID = @Profession_ID WHERE Partner_ID = @Partner_ID", con);
-                cmd.Parameters.AddWithValue("@Partner_FirstName", pName);
-                cmd.Parameters.AddWithValue("@Partner_SurName", pSurName);
-                cmd.Parameters.AddWithValue("@Partner_ContactNumber", pIntNum);
-                cmd.Parameters.AddWithValue("@Partner_Email", pEmail);
-                cmd.Parameters.AddWithValue("@Partner_Domain", pURL);
-                cmd.Parameters.AddWithValue("@Profession_ID", profID);
-                cmd.Parameters.AddWithValue("@Partner_ID", pID);
-                cmd.ExecuteNonQuery();
-                con.Close();
+                Database.Execute(@"
+                    UPDATE PARTNERS
+                    SET Partner_FirstName = @FirstName,
+                        Partner_SurName = @Surname,
+                        Partner_ContactNumber = @Phone,
+                        Partner_Email = @Email,
+                        Partner_Domain = @Website,
+                        Profession_ID = @ProfessionId
+                    WHERE Partner_ID = @PartnerId;",
+                    parameters =>
+                    {
+                        AddPartnerParameters(parameters, firstName, surname, phone, email, website, professionId);
+                        Database.AddInt(parameters, "@PartnerId", partnerId);
+                    });
 
-                MessageBox.Show("Partner updated successfully");
+                RefreshPartnerChoices();
+                SetUpdateFieldsVisible(false);
+                MessageBox.Show("Partner updated successfully.", "One Stop Events",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (SqlException ex)
             {
-                MessageBox.Show(ex.Message);
+                ShowDatabaseError("update the partner", ex);
             }
-        }
-
-        private void btnPDeteteCencel_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
 
         private void BtnDelete_Click(object sender, EventArgs e)
         {
-            pID = (int)cbxPSelectDelete.SelectedValue;
+            int partnerId;
+            if (!ValidationHelper.TryGetSelectedId(cbxPSelectDelete, out partnerId))
+            {
+                ShowSelectionError(cbxPSelectDelete, "Select a partner to delete.");
+                return;
+            }
+
             try
             {
-                con.Open();
-
-                // Delete dependent records from EVENTS table
-                cmd = new SqlCommand("DELETE FROM EVENTS WHERE Partner_ID = @Partner_ID", con);
-                cmd.Parameters.AddWithValue("@Partner_ID", pID);
-                cmd.ExecuteNonQuery();
-
-                // Now delete the partner from PARTNERS table
-                cmd = new SqlCommand("DELETE FROM PARTNERS WHERE Partner_ID = @Partner_ID", con);
-                cmd.Parameters.AddWithValue("@Partner_ID", pID);
-                cmd.ExecuteNonQuery();
-
-                con.Close();
-
-                MessageBox.Show("Partner and associated events deleted successfully");
+                Database.Execute("DELETE FROM PARTNERS WHERE Partner_ID = @PartnerId;",
+                    parameters => Database.AddInt(parameters, "@PartnerId", partnerId));
+                RefreshPartnerChoices();
+                BtnDelete.Visible = false;
+                MessageBox.Show("Partner deleted successfully.", "One Stop Events",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (SqlException ex)
             {
-                MessageBox.Show("SQL Error: " + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
-        }
-
-        private void cbxPSelectDelete_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cbxPSelectDelete.SelectedIndex != -1)
-            {
-                BtnDelete.Visible = true;
-            }
-        }
-
-        private void cbxPartnerUpdate_DropDown(object sender, EventArgs e)
-        {
-            try
-            {
-                con.Open();
-                cmd = new SqlCommand("SELECT Partner_ID, Partner_FirstName + ' ' + Partner_SurName AS PartnerFullName FROM PARTNERS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBox
-                cbxPartnerUpdate.DisplayMember = "PartnerFullName";
-                cbxPartnerUpdate.ValueMember = "Partner_ID";
-                cbxPartnerUpdate.DataSource = dt;
-                cbxPSelectDelete.DisplayMember = "PartnerFullName";
-                cbxPSelectDelete.ValueMember = "Partner_ID";
-                cbxPSelectDelete.DataSource = dt;
-                CB_Selected_Partner.DisplayMember = "PartnerFullName";
-                CB_Selected_Partner.ValueMember = "Partner_ID";
-                CB_Selected_Partner.DataSource = dt;
-                con.Close();
-            }
-            catch (SqlException ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
-        }
-
-        private void cbxPSelectDelete_DropDown(object sender, EventArgs e)
-        {
-            try
-            {
-                con.Open();
-                cmd = new SqlCommand("SELECT Partner_ID, Partner_FirstName + ' ' + Partner_SurName AS PartnerFullName FROM PARTNERS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBox
-                cbxPartnerUpdate.DisplayMember = "PartnerFullName";
-                cbxPartnerUpdate.ValueMember = "Partner_ID";
-                cbxPartnerUpdate.DataSource = dt;
-                cbxPSelectDelete.DisplayMember = "PartnerFullName";
-                cbxPSelectDelete.ValueMember = "Partner_ID";
-                cbxPSelectDelete.DataSource = dt;
-                con.Close();
-            }
-            catch (SqlException ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
-            finally
-            {
-                // Ensure the connection is closed
-                if (con.State == ConnectionState.Open)
-                {
-                    try
-                    {
-                        con.Close();
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log any exception that occurs while closing the connection
-                        MessageBox.Show("Error closing connection: " + ex.Message);
-                    }
-                }
+                ShowDatabaseError("delete the partner", ex);
             }
         }
 
         private void BtnViewEvent_Click(object sender, EventArgs e)
         {
-            pID = (int)CB_Selected_Partner.SelectedValue;
+            int partnerId;
+            if (!ValidationHelper.TryGetSelectedId(CB_Selected_Partner, out partnerId))
+            {
+                ShowSelectionError(CB_Selected_Partner, "Select a partner to view.");
+                return;
+            }
+
             try
             {
-                // Open the connection
-                con.Open();
-
-                // Create the SQL command to retrieve the required client information
-                cmd = new SqlCommand("SELECT P.Partner_FirstName, P.Partner_SurName, P.Partner_Email, P.Partner_ContactNumber, PP.Partner_Profession FROM PARTNERS P INNER JOIN PARTNER_PROFESSIONS PP ON P.Profession_ID = PP.Profession_ID WHERE P.Partner_ID = @Partner_ID", con);
-                cmd.Parameters.AddWithValue("@Partner_ID", pID);
-                // Create a DataAdapter to fill a DataTable with the retrieved data
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // Bind the DataTable to the DataGridView
-                dgvViewPartners.DataSource = dt;
-
-                // Close the connection
-                con.Close();
-            }
-            catch (Exception ex)
-            {
-                // Handle any exceptions that may occur
-                MessageBox.Show("Error: " + ex.Message);
-            }
-        }
-
-        private void btnCancel1_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void CB_Selected_Partner_DropDown(object sender, EventArgs e)
-        {
-            try
-            {
-                con.Open();
-                cmd = new SqlCommand("SELECT Partner_ID, Partner_FirstName + ' ' + Partner_SurName AS PartnerFullName FROM PARTNERS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBox
-                cbxPartnerUpdate.DisplayMember = "PartnerFullName";
-                cbxPartnerUpdate.ValueMember = "Partner_ID";
-                cbxPartnerUpdate.DataSource = dt;
-                cbxPSelectDelete.DisplayMember = "PartnerFullName";
-                cbxPSelectDelete.ValueMember = "Partner_ID";
-                cbxPSelectDelete.DataSource = dt;
-                CB_Selected_Partner.DisplayMember = "PartnerFullName";
-                CB_Selected_Partner.ValueMember = "Partner_ID";
-                CB_Selected_Partner.DataSource = dt;
-                con.Close();
+                dgvViewPartners.DataSource = Database.Query(@"
+                    SELECT P.Partner_FirstName AS [First name],
+                           P.Partner_SurName AS [Surname],
+                           P.Partner_ContactNumber AS [Contact number],
+                           P.Partner_Email AS [Email],
+                           P.Partner_Domain AS [Website],
+                           PP.Partner_Profession AS [Profession]
+                    FROM PARTNERS AS P
+                    INNER JOIN PARTNER_PROFESSIONS AS PP
+                        ON P.Profession_ID = PP.Profession_ID
+                    WHERE P.Partner_ID = @PartnerId;",
+                    parameters => Database.AddInt(parameters, "@PartnerId", partnerId));
             }
             catch (SqlException ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                ShowDatabaseError("load the partner", ex);
             }
         }
 
-        private void cbxAddPartnerProfession_DropDown(object sender, EventArgs e)
+        private void cbxPartner_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (loadingChoices)
+            {
+                return;
+            }
+
+            int partnerId;
+            bool selected = ValidationHelper.TryGetSelectedId(cbxPartnerUpdate, out partnerId);
+            SetUpdateFieldsVisible(selected);
+            if (!selected)
+            {
+                return;
+            }
+
             try
             {
-                con.Open();
-                cmd = new SqlCommand("SELECT Profession_ID, Partner_Profession FROM PARTNER_PROFESSIONS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
+                DataTable partner = Database.Query(@"
+                    SELECT Partner_FirstName, Partner_SurName, Partner_ContactNumber,
+                           Partner_Email, Partner_Domain, Profession_ID
+                    FROM PARTNERS
+                    WHERE Partner_ID = @PartnerId;",
+                    parameters => Database.AddInt(parameters, "@PartnerId", partnerId));
 
-                // DataTable to the ComboBox
-                cbxAddPartnerProfession.DisplayMember = "Partner_Profession";
-                cbxAddPartnerProfession.ValueMember = "Profession_ID";
-                cbxAddPartnerProfession.DataSource = dt;
-                cbxProfessionUpdate.DisplayMember = "Partner_Profession";
-                cbxProfessionUpdate.ValueMember = "Profession_ID";
-                cbxProfessionUpdate.DataSource = dt;
-
-                cmd = new SqlCommand("SELECT Partner_ID, (Partner_FirstName + ' ' + Partner_SurName) AS PartnerFullName FROM PARTNERS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBox
-                cbxPartnerUpdate.DisplayMember = "PartnerFullName";
-                cbxPartnerUpdate.ValueMember = "Partner_ID";
-                cbxPartnerUpdate.DataSource = dt;
-                cbxPSelectDelete.DisplayMember = "PartnerFullName";
-                cbxPSelectDelete.ValueMember = "Partner_ID";
-                cbxPSelectDelete.DataSource = dt;
-                CB_Selected_Partner.DisplayMember = "PartnerFullName";
-                CB_Selected_Partner.ValueMember = "Partner_ID";
-                CB_Selected_Partner.DataSource = dt;
-                con.Close();
+                if (partner.Rows.Count == 1)
+                {
+                    DataRow row = partner.Rows[0];
+                    txtPNameUpdate.Text = row.Field<string>("Partner_FirstName");
+                    txtPSurnameUpdate.Text = row.Field<string>("Partner_SurName");
+                    txtPContactNumberUpdate.Text = row.Field<string>("Partner_ContactNumber");
+                    txtPEmailUpdate.Text = row.Field<string>("Partner_Email");
+                    txtPURLUpdate.Text = row.Field<string>("Partner_Domain");
+                    cbxProfessionUpdate.SelectedValue = row.Field<int>("Profession_ID");
+                }
             }
             catch (SqlException ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                ShowDatabaseError("load the selected partner", ex);
             }
         }
 
-        private void cbxProfessionUpdate_DropDown(object sender, EventArgs e)
+        private void cbxPSelectDelete_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int ignored;
+            BtnDelete.Visible = !loadingChoices
+                && ValidationHelper.TryGetSelectedId(cbxPSelectDelete, out ignored);
+        }
+
+        private void RefreshAllChoices()
+        {
+            RefreshProfessionChoices();
+            RefreshPartnerChoices();
+        }
+
+        private void RefreshProfessionChoices()
         {
             try
             {
-                con.Open();
-                cmd = new SqlCommand("SELECT Profession_ID, Partner_Profession FROM PARTNER_PROFESSIONS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBox
-                cbxAddPartnerProfession.DisplayMember = "Partner_Profession";
-                cbxAddPartnerProfession.ValueMember = "Profession_ID";
-                cbxAddPartnerProfession.DataSource = dt;
-                cbxProfessionUpdate.DisplayMember = "Partner_Profession";
-                cbxProfessionUpdate.ValueMember = "Profession_ID";
-                cbxProfessionUpdate.DataSource = dt;
-
-                cmd = new SqlCommand("SELECT Partner_ID, (Partner_FirstName + ' ' + Partner_SurName) AS PartnerFullName FROM PARTNERS", con);
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-
-                // DataTable to the ComboBox
-                cbxPartnerUpdate.DisplayMember = "PartnerFullName";
-                cbxPartnerUpdate.ValueMember = "Partner_ID";
-                cbxPartnerUpdate.DataSource = dt;
-                cbxPSelectDelete.DisplayMember = "PartnerFullName";
-                cbxPSelectDelete.ValueMember = "Partner_ID";
-                cbxPSelectDelete.DataSource = dt;
-                CB_Selected_Partner.DisplayMember = "PartnerFullName";
-                CB_Selected_Partner.ValueMember = "Partner_ID";
-                CB_Selected_Partner.DataSource = dt;
-                con.Close();
+                DataTable professions = Database.Query(ProfessionChoiceQuery);
+                loadingChoices = true;
+                BindProfession(cbxAddPartnerProfession, professions.Copy());
+                BindProfession(cbxProfessionUpdate, professions);
             }
             catch (SqlException ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                ShowDatabaseError("load professions", ex);
+            }
+            finally
+            {
+                loadingChoices = false;
             }
         }
+
+        private void RefreshPartnerChoices()
+        {
+            try
+            {
+                DataTable partners = Database.Query(PartnerChoiceQuery);
+                loadingChoices = true;
+                BindPartner(cbxPartnerUpdate, partners.Copy());
+                BindPartner(cbxPSelectDelete, partners.Copy());
+                BindPartner(CB_Selected_Partner, partners);
+            }
+            catch (SqlException ex)
+            {
+                ShowDatabaseError("load partners", ex);
+            }
+            finally
+            {
+                loadingChoices = false;
+            }
+        }
+
+        private void RefreshSinglePartnerChoice(ComboBox comboBox)
+        {
+            RefreshSingleChoice(comboBox, PartnerChoiceQuery, "PartnerFullName", "Partner_ID");
+        }
+
+        private void RefreshSingleProfessionChoice(ComboBox comboBox)
+        {
+            RefreshSingleChoice(comboBox, ProfessionChoiceQuery, "Partner_Profession", "Profession_ID");
+        }
+
+        private void RefreshSingleChoice(
+            ComboBox comboBox,
+            string query,
+            string displayMember,
+            string valueMember)
+        {
+            try
+            {
+                object selectedValue = comboBox.SelectedValue;
+                DataTable choices = Database.Query(query);
+                loadingChoices = true;
+                comboBox.DisplayMember = displayMember;
+                comboBox.ValueMember = valueMember;
+                comboBox.DataSource = choices;
+                comboBox.SelectedIndex = -1;
+                if (selectedValue != null)
+                {
+                    comboBox.SelectedValue = selectedValue;
+                }
+            }
+            catch (SqlException ex)
+            {
+                ShowDatabaseError("refresh choices", ex);
+            }
+            finally
+            {
+                loadingChoices = false;
+            }
+        }
+
+        private static void BindPartner(ComboBox comboBox, DataTable data)
+        {
+            comboBox.DisplayMember = "PartnerFullName";
+            comboBox.ValueMember = "Partner_ID";
+            comboBox.DataSource = data;
+            comboBox.SelectedIndex = -1;
+        }
+
+        private static void BindProfession(ComboBox comboBox, DataTable data)
+        {
+            comboBox.DisplayMember = "Partner_Profession";
+            comboBox.ValueMember = "Profession_ID";
+            comboBox.DataSource = data;
+            comboBox.SelectedIndex = -1;
+        }
+
+        private static bool TryReadPartner(
+            TextBox firstNameControl,
+            TextBox surnameControl,
+            TextBox phoneControl,
+            TextBox emailControl,
+            TextBox websiteControl,
+            ComboBox professionControl,
+            out string firstName,
+            out string surname,
+            out string phone,
+            out string email,
+            out string website,
+            out int professionId)
+        {
+            firstName = firstNameControl.Text.Trim();
+            surname = surnameControl.Text.Trim();
+            phone = phoneControl.Text.Trim();
+            email = emailControl.Text.Trim();
+            website = websiteControl.Text.Trim();
+            professionId = 0;
+
+            if (!ValidationHelper.IsPersonName(firstName))
+            {
+                ShowValidationError(firstNameControl, "Enter a valid partner first name.");
+                return false;
+            }
+
+            firstNameControl.BackColor = Color.White;
+            if (!ValidationHelper.IsPersonName(surname))
+            {
+                ShowValidationError(surnameControl, "Enter a valid partner surname.");
+                return false;
+            }
+
+            surnameControl.BackColor = Color.White;
+            if (!ValidationHelper.IsPhone(phone))
+            {
+                ShowValidationError(phoneControl, "Enter a 10-digit contact number.");
+                return false;
+            }
+
+            phoneControl.BackColor = Color.White;
+            if (!ValidationHelper.IsEmail(email))
+            {
+                ShowValidationError(emailControl, "Enter a valid email address.");
+                return false;
+            }
+
+            emailControl.BackColor = Color.White;
+            if (!ValidationHelper.IsWebsite(website))
+            {
+                ShowValidationError(websiteControl, "Enter a valid website address, such as example.com.");
+                return false;
+            }
+
+            websiteControl.BackColor = Color.White;
+            if (!ValidationHelper.TryGetSelectedId(professionControl, out professionId))
+            {
+                ShowSelectionError(professionControl, "Select a profession.");
+                return false;
+            }
+
+            professionControl.BackColor = Color.White;
+            return true;
+        }
+
+        private static void AddPartnerParameters(
+            SqlParameterCollection parameters,
+            string firstName,
+            string surname,
+            string phone,
+            string email,
+            string website,
+            int professionId)
+        {
+            Database.AddVarChar(parameters, "@FirstName", 50, firstName);
+            Database.AddVarChar(parameters, "@Surname", 50, surname);
+            Database.AddVarChar(parameters, "@Phone", 15, phone);
+            Database.AddVarChar(parameters, "@Email", 100, email);
+            Database.AddVarChar(parameters, "@Website", 100, website);
+            Database.AddInt(parameters, "@ProfessionId", professionId);
+        }
+
+        private void SetUpdateFieldsVisible(bool visible)
+        {
+            btnUpdate.Visible = visible;
+            lblPNameUpdate.Visible = visible;
+            lblPSurnameUpdate.Visible = visible;
+            lblPContactNumberUpdate.Visible = visible;
+            lblPEmailUpdate.Visible = visible;
+            lblPURLUpdate.Visible = visible;
+            lblPProfessionUpdate.Visible = visible;
+            txtPNameUpdate.Visible = visible;
+            txtPSurnameUpdate.Visible = visible;
+            txtPContactNumberUpdate.Visible = visible;
+            txtPEmailUpdate.Visible = visible;
+            txtPURLUpdate.Visible = visible;
+            cbxProfessionUpdate.Visible = visible;
+        }
+
+        private void ClearAddFields()
+        {
+            txtPartnerName.Clear();
+            txtPartnerSurname.Clear();
+            txtPartnerContactNumber.Clear();
+            txtPartnerEmail.Clear();
+            txtPartnerWebsite.Clear();
+            cbxAddPartnerProfession.SelectedIndex = -1;
+            txtPartnerName.Focus();
+        }
+
+        private static void ShowValidationError(Control control, string message)
+        {
+            control.BackColor = Color.MistyRose;
+            MessageBox.Show(message, "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            control.Focus();
+        }
+
+        private static void ShowSelectionError(ComboBox comboBox, string message)
+        {
+            comboBox.BackColor = Color.MistyRose;
+            MessageBox.Show(message, "Selection required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            comboBox.Focus();
+        }
+
+        private static void ShowDatabaseError(string action, Exception exception)
+        {
+            MessageBox.Show("Unable to " + action + ".\n\n" + exception.Message,
+                "Database error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void cbxPartnerUpdate_DropDown(object sender, EventArgs e) { RefreshSinglePartnerChoice(cbxPartnerUpdate); }
+        private void cbxPSelectDelete_DropDown(object sender, EventArgs e) { RefreshSinglePartnerChoice(cbxPSelectDelete); }
+        private void CB_Selected_Partner_DropDown(object sender, EventArgs e) { RefreshSinglePartnerChoice(CB_Selected_Partner); }
+        private void cbxAddPartnerProfession_DropDown(object sender, EventArgs e) { RefreshSingleProfessionChoice(cbxAddPartnerProfession); }
+        private void cbxProfessionUpdate_DropDown(object sender, EventArgs e) { RefreshSingleProfessionChoice(cbxProfessionUpdate); }
+        private void btnExit_Click(object sender, EventArgs e) { Close(); }
+        private void btnCancel_Click(object sender, EventArgs e) { Close(); }
+        private void btnPDeteteCencel_Click(object sender, EventArgs e) { Close(); }
+        private void btnCancel1_Click(object sender, EventArgs e) { Close(); }
     }
 }

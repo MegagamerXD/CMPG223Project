@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ONESTOPEVENTS
@@ -17,223 +11,133 @@ namespace ONESTOPEVENTS
         {
             InitializeComponent();
         }
-        SqlConnection con = Database.CreateConnection();
-        SqlCommand cmd;
-        SqlDataAdapter da;
-        SqlDataReader re;
-        DataSet ds;
-        DataTable dt;
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
-        {
-            ClearDataGridView();
-        }
-
-
-        private void radioButton2_CheckedChanged(object sender, EventArgs e)
-        {
-            ClearDataGridView();
-        }
-
-        private void radioButton3_CheckedChanged(object sender, EventArgs e)
-        {
-            ClearDataGridView();
-        }
- 
-    
-
-        private void radioButton4_CheckedChanged(object sender, EventArgs e)
-        {
-            ClearDataGridView();
-        }
-
-        private void radioButton5_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            // Determine the query based on the selected radio button
-            string query = GetQueryBasedOnSelection();
-
+            string query = GetSelectedReportQuery();
             if (query == null)
             {
-                MessageBox.Show("Please select a report type.");
+                MessageBox.Show("Select a report type.", "Selection required",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Get the start and end dates from the MonthCalendar controls
-            DateTime startDate = monthCalendar1.SelectionStart;
-            DateTime endDate = monthCalendar2.SelectionStart;
-
-            // Ensure endDate is after startDate
+            DateTime startDate = monthCalendar1.SelectionStart.Date;
+            DateTime endDate = monthCalendar2.SelectionStart.Date;
             if (endDate < startDate)
             {
-                MessageBox.Show("End date must be on or after the start date.");
+                MessageBox.Show("The ending date must be on or after the starting date.",
+                    "Invalid date range", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Generate the report
-            GenerateReport(query, startDate, endDate);
+            GenerateReport(query, startDate, endDate.AddDays(1));
         }
 
-        private string GetQueryBasedOnSelection()
+        private string GetSelectedReportQuery()
         {
             if (radioButton1.Checked)
             {
                 return @"
-            SELECT TOP 10 
-                p.Partner_FirstName,
-                p.Partner_SurName,
-                p.Partner_Email,
-                SUM(e.Event_Cost) AS TotalEarnings
-            FROM 
-                EVENTS e
-            INNER JOIN 
-                PARTNERS p ON e.Partner_ID = p.Partner_ID
-            WHERE 
-                e.Event_Date BETWEEN @StartDate AND @EndDate
-            GROUP BY 
-                p.Partner_FirstName,
-                p.Partner_SurName,
-                p.Partner_Email
-            ORDER BY 
-                TotalEarnings DESC;
-        ";
+                    SELECT TOP (10)
+                           P.Partner_FirstName AS [First name],
+                           P.Partner_SurName AS [Surname],
+                           P.Partner_Email AS [Email],
+                           COUNT(E.Event_ID) AS [Events],
+                           SUM(E.Event_Cost) AS [Total event value]
+                    FROM EVENTS AS E
+                    INNER JOIN PARTNERS AS P ON E.Partner_ID = P.Partner_ID
+                    WHERE E.Event_Date >= @StartDate
+                      AND E.Event_Date < @EndDateExclusive
+                    GROUP BY P.Partner_ID, P.Partner_FirstName,
+                             P.Partner_SurName, P.Partner_Email
+                    ORDER BY [Total event value] DESC, [Surname], [First name];";
             }
-            else if (radioButton2.Checked)
+
+            if (radioButton2.Checked)
             {
                 return @"
-            SELECT TOP 10 
-                v.Venue_Name,
-                v.Venue_Address,
-                COUNT(e.Event_ID) AS NumberOfEvents
-            FROM 
-                EVENTS e
-            INNER JOIN 
-                VENUES v ON e.Venue_ID = v.Venue_ID
-            WHERE 
-                e.Event_Date BETWEEN @StartDate AND @EndDate
-            GROUP BY 
-                v.Venue_Name,
-                v.Venue_Address
-            ORDER BY 
-                NumberOfEvents DESC;
-        ";
+                    SELECT TOP (10)
+                           V.Venue_Name AS [Venue],
+                           V.Venue_Address AS [Address],
+                           COUNT(E.Event_ID) AS [Number of events]
+                    FROM EVENTS AS E
+                    INNER JOIN VENUES AS V ON E.Venue_ID = V.Venue_ID
+                    WHERE E.Event_Date >= @StartDate
+                      AND E.Event_Date < @EndDateExclusive
+                    GROUP BY V.Venue_ID, V.Venue_Name, V.Venue_Address
+                    ORDER BY [Number of events] DESC, [Venue];";
             }
-            else if (radioButton3.Checked)
+
+            if (radioButton3.Checked)
             {
                 return @"
-            SELECT TOP 10 
-                e.Event_Name,
-                e.Event_Description,
-                v.Venue_Name,
-                SUM(e.Event_Cost) AS TotalRevenue
-            FROM 
-                EVENTS e
-            INNER JOIN 
-                VENUES v ON e.Venue_ID = v.Venue_ID
-            WHERE 
-                e.Event_Date BETWEEN @StartDate AND @EndDate
-            GROUP BY 
-                e.Event_Name,
-                e.Event_Description,
-                v.Venue_Name
-            ORDER BY 
-                TotalRevenue DESC;
-        ";
+                    SELECT TOP (10)
+                           E.Event_Name AS [Event],
+                           E.Event_Date AS [Date],
+                           V.Venue_Name AS [Venue],
+                           E.Event_Cost AS [Event value]
+                    FROM EVENTS AS E
+                    INNER JOIN VENUES AS V ON E.Venue_ID = V.Venue_ID
+                    WHERE E.Event_Date >= @StartDate
+                      AND E.Event_Date < @EndDateExclusive
+                    ORDER BY E.Event_Cost DESC, E.Event_Date, E.Event_Name;";
             }
-            else if (radioButton4.Checked)
+
+            if (radioButton4.Checked)
             {
                 return @"
-            SELECT TOP 10 
-                c.Client_FirstName,
-                c.Client_SurName,
-                c.Client_Email,
-                SUM(e.Event_Cost) AS TotalSpent
-            FROM 
-                EVENTS e
-            INNER JOIN 
-                CLIENTS c ON e.Client_ID = c.Client_ID
-            WHERE 
-                e.Event_Date BETWEEN @StartDate AND @EndDate
-            GROUP BY 
-                c.Client_FirstName,
-                c.Client_SurName,
-                c.Client_Email
-            ORDER BY 
-                TotalSpent DESC;
-        ";
+                    SELECT TOP (10)
+                           C.Client_FirstName AS [First name],
+                           C.Client_SurName AS [Surname],
+                           C.Client_Email AS [Email],
+                           COUNT(E.Event_ID) AS [Events],
+                           SUM(E.Event_Cost) AS [Total spent]
+                    FROM EVENTS AS E
+                    INNER JOIN CLIENTS AS C ON E.Client_ID = C.Client_ID
+                    WHERE E.Event_Date >= @StartDate
+                      AND E.Event_Date < @EndDateExclusive
+                    GROUP BY C.Client_ID, C.Client_FirstName,
+                             C.Client_SurName, C.Client_Email
+                    ORDER BY [Total spent] DESC, [Surname], [First name];";
             }
+
             return null;
         }
 
-        private void GenerateReport(string query, DateTime startDate, DateTime endDate)
+        private void GenerateReport(string query, DateTime startDate, DateTime endDateExclusive)
         {
-            using (SqlConnection con = Database.CreateConnection())
+            try
             {
-                try
+                dataGridView1.DataSource = Database.Query(query, parameters =>
                 {
-                    con.Open();
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@StartDate", startDate);
-                    cmd.Parameters.AddWithValue("@EndDate", endDate);
-
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-
-                    ClearDataGridView(); // Clear previous data
-                    dataGridView1.DataSource = dt;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("An error occurred: " + ex.Message);
-                }
+                    Database.AddDate(parameters, "@StartDate", startDate);
+                    Database.AddDate(parameters, "@EndDateExclusive", endDateExclusive);
+                });
+                dataGridView1.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show("Unable to generate the report.\n\n" + ex.Message,
+                    "Database error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void ClearDataGridView()
         {
-            dataGridView1.DataSource = null; // Clears bound data
-            dataGridView1.Rows.Clear();      // Clears rows if not using data source
-            dataGridView1.Columns.Clear();   // Clears columns if needed
+            dataGridView1.DataSource = null;
+            dataGridView1.Rows.Clear();
+            dataGridView1.Columns.Clear();
         }
 
-        private void Reporting_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
+        private void radioButton1_CheckedChanged(object sender, EventArgs e) { ClearDataGridView(); }
+        private void radioButton2_CheckedChanged(object sender, EventArgs e) { ClearDataGridView(); }
+        private void radioButton3_CheckedChanged(object sender, EventArgs e) { ClearDataGridView(); }
+        private void radioButton4_CheckedChanged(object sender, EventArgs e) { ClearDataGridView(); }
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void label1_Click(object sender, EventArgs e) { }
+        private void label2_Click_1(object sender, EventArgs e) { }
+        private void Reporting_Load(object sender, EventArgs e) { }
+        private void button2_Click(object sender, EventArgs e) { Close(); }
     }
 }
