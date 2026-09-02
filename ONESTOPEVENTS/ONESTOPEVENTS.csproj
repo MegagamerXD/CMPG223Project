@@ -49,6 +49,9 @@
   <ItemGroup>
     <Compile Include="Database.cs" />
     <Compile Include="ValidationHelper.cs" />
+    <Compile Include="HelpAssistantForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="PartnerForm.cs">
       <SubType>Form</SubType>
     </Compile>

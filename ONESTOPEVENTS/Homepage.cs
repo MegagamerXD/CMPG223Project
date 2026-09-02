@@ -60,6 +60,14 @@ namespace ONESTOPEVENTS
             }
         }
 
+        private void button7_Click(object sender, EventArgs e)
+        {
+            using (HelpAssistantForm form = new HelpAssistantForm())
+            {
+                form.ShowDialog(this);
+            }
+        }
+
         private void Homepage_Load(object sender, EventArgs e) { }
     }
 }

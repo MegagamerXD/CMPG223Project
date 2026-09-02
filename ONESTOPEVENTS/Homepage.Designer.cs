@@ -44,6 +44,7 @@
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.button6 = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.button7 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -202,6 +203,7 @@
             // 
             // groupBox6
             // 
+            this.groupBox6.Controls.Add(this.button7);
             this.groupBox6.Controls.Add(this.label1);
             this.groupBox6.Font = new System.Drawing.Font("Calibri", 12F);
             this.groupBox6.Location = new System.Drawing.Point(52, 379);
@@ -209,14 +211,24 @@
             this.groupBox6.Size = new System.Drawing.Size(390, 115);
             this.groupBox6.TabIndex = 0;
             this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Description";
+            this.groupBox6.Text = "Help and description";
+            //
+            // button7
+            //
+            this.button7.Location = new System.Drawing.Point(108, 77);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(175, 30);
+            this.button7.TabIndex = 6;
+            this.button7.Text = "Help Assistant";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
             // label1
             // 
             this.label1.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(6, 19);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(378, 93);
+            this.label1.Size = new System.Drawing.Size(378, 55);
             this.label1.TabIndex = 0;
             this.label1.Text = resources.GetString("label1.Text");
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -267,6 +279,7 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.Button button7;
         private System.Windows.Forms.Label label1;
     }
 }
